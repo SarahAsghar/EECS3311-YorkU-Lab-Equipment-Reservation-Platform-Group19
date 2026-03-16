@@ -11,9 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+
+import model.User.UserType;
+
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 
 public class RegisterView {
@@ -95,8 +97,7 @@ public class RegisterView {
 		userTypeLabel.setBounds(18, 140, 147, 30);
 		infoPanel.add(userTypeLabel);
 		
-		JComboBox usertypeComboBox = new JComboBox();
-		usertypeComboBox.setModel(new DefaultComboBoxModel(new String[] {"Student", "Faculty", "Researcher", "Guest"}));
+		JComboBox<UserType> usertypeComboBox = new JComboBox<>(UserType.values());
 		usertypeComboBox.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		usertypeComboBox.setBounds(148, 140, 267, 43);
 		infoPanel.add(usertypeComboBox);
