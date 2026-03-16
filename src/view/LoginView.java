@@ -129,7 +129,7 @@ public class LoginView {
 		Registerbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setLoginViewVisibility(false);
-				new RegisterView(frame);
+				RegisterView.getInstance(frame).setRegisterViewVisibility(true);
 			}
 		});
 		Registerbtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
@@ -141,7 +141,7 @@ public class LoginView {
 		
 	}
 	
-	public static synchronized LoginView openLoginView() {
+	public static synchronized LoginView getInstance() {
 		if(instance == null) {
 			instance = new LoginView();
 		}
@@ -150,6 +150,10 @@ public class LoginView {
 	
 	public void setLoginViewVisibility(boolean b) {
 		LoginViewPanel.setVisible(b);
+	}
+	
+	public static JFrame getFrame() {
+		return frame;
 	}
 	
 	
