@@ -30,48 +30,56 @@ import javax.swing.JToggleButton;
 
 public class LoginView {
 	
-	JFrame frame = new JFrame("EquipmentReservationSystem");
+	private static JFrame frame = new JFrame("EquipmentReservationSystem");
 	private JTextField EmailTextfield;
 	private JPasswordField PasswordTextfield;
+	private JPanel LoginViewPanel;
 	
-	public LoginView() {
+	private static LoginView instance;
+	
+	private LoginView() {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close on exit
 		frame.setVisible(true);
 		frame.setResizable(false); // stop resize
 		frame.setMinimumSize(new Dimension(800, 600));
 		frame.getContentPane().setBackground(new Color(239, 239, 239));
 		frame.getContentPane().setLayout(null);
+
+		LoginViewPanel = new JPanel();
+		LoginViewPanel.setBounds(0, 0, 800, 600);
+		LoginViewPanel.setLayout(null);
+		frame.getContentPane().add(LoginViewPanel);
 		
 		JPanel TitlePanel = new JPanel();
 		TitlePanel.setBorder(new LineBorder(new Color(0, 0, 0), 3, true));
 		TitlePanel.setBackground(new Color(255, 255, 255));
 		TitlePanel.setBounds(100, 18, 588, 141);
-		frame.getContentPane().add(TitlePanel);
+		LoginViewPanel.add(TitlePanel);
 		TitlePanel.setLayout(null);
 		
 		JLabel TitleLaplePart1 = new JLabel("YORKU Equipment ");
 		TitleLaplePart1.setHorizontalAlignment(SwingConstants.CENTER);
-		TitleLaplePart1.setBounds(6, 6, 488, 63);
+		TitleLaplePart1.setBounds(6, 6, 576, 63);
 		TitleLaplePart1.setFont(new Font("Times New Roman", Font.BOLD, 35));
 		TitlePanel.add(TitleLaplePart1);
 		
 		JLabel TitleLabelPart2 = new JLabel("Registration Platform");
 		TitleLabelPart2.setHorizontalAlignment(SwingConstants.CENTER);
 		TitleLabelPart2.setFont(new Font("Times New Roman", Font.BOLD, 35));
-		TitleLabelPart2.setBounds(6, 72, 488, 63);
+		TitleLabelPart2.setBounds(6, 72, 576, 63);
 		TitlePanel.add(TitleLabelPart2);
 		
 		JLabel LoginLabel = new JLabel("Login");
 		LoginLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		LoginLabel.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		LoginLabel.setBounds(100, 155, 588, 63);
-		frame.getContentPane().add(LoginLabel);
+		LoginViewPanel.add(LoginLabel);
 		
 		JPanel InfoPanel = new JPanel();
 		InfoPanel.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
 		InfoPanel.setBackground(new Color(255, 255, 255));
 		InfoPanel.setBounds(100, 217, 588, 226);
-		frame.getContentPane().add(InfoPanel);
+		LoginViewPanel.add(InfoPanel);
 		InfoPanel.setLayout(null);
 		
 		JLabel EmailLabel = new JLabel("Email:");
@@ -107,15 +115,10 @@ public class LoginView {
 		
 		JPanel RegistrationPanel = new JPanel();
 		RegistrationPanel.setBounds(100, 456, 588, 88);
-		frame.getContentPane().add(RegistrationPanel);
+		LoginViewPanel.add(RegistrationPanel);
 		RegistrationPanel.setLayout(null);
 		RegistrationPanel.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
 		RegistrationPanel.setBackground(Color.WHITE);
-		
-		JButton LoginBtn_1 = new JButton("Login");
-		LoginBtn_1.setFont(new Font("Times New Roman", Font.BOLD, 25));
-		LoginBtn_1.setBounds(196, 168, 117, 38);
-		RegistrationPanel.add(LoginBtn_1);
 		
 		JLabel RegisterLabel = new JLabel("New User?");
 		RegisterLabel.setFont(new Font("Times New Roman", Font.BOLD, 25));
@@ -123,10 +126,31 @@ public class LoginView {
 		RegistrationPanel.add(RegisterLabel);
 		
 		JButton Registerbtn = new JButton("Register");
+		Registerbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setLoginViewVisibility(false);
+				new RegisterView(frame);
+			}
+		});
 		Registerbtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		Registerbtn.setBounds(236, 25, 117, 38);
 		RegistrationPanel.add(Registerbtn);
 		
 		
+		
+		
 	}
+	
+	public static synchronized LoginView openLoginView() {
+		if(instance == null) {
+			instance = new LoginView();
+		}
+		return instance;
+	}
+	
+	public void setLoginViewVisibility(boolean b) {
+		LoginViewPanel.setVisible(b);
+	}
+	
+	
 }
