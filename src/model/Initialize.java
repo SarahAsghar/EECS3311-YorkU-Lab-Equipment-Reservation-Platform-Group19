@@ -1,11 +1,5 @@
 package model;
 
-import java.awt.Color;
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 import view.LoginView;
 
 public class Initialize {

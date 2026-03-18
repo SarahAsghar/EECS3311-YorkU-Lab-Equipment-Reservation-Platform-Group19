@@ -105,13 +105,13 @@ public class LoginView {
 		JButton LoginBtn = new JButton("Login");
 		LoginBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		LoginBtn.setBounds(240, 167, 117, 38);
-		LoginBtn.setVisible(true);
 		LoginBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String email = EmailTextfield.getText();
 				String password = String.valueOf(PasswordTextfield.getPassword());
 				
-				if (email == null || password == null) {
+				if (email == null || password == null ||
+						 email.equals("") || password.equals("")) {
 					JOptionPane.showMessageDialog(LoginViewPanel,
 		                    "Enter Email and Password",
 		                    "Error",
@@ -129,8 +129,8 @@ public class LoginView {
 				}
 			}
 		});
-		LoginBtn.setVisible(true);
 		InfoPanel.add(LoginBtn);
+		LoginBtn.setVisible(true);
 		
 		JPanel RegistrationPanel = new JPanel();
 		RegistrationPanel.setBounds(100, 456, 588, 88);
@@ -168,6 +168,8 @@ public class LoginView {
 	}
 	
 	public void setLoginViewVisibility(boolean b) {
+		EmailTextfield.setText("");
+		PasswordTextfield.setText("");
 		LoginViewPanel.setVisible(b);
 	}
 	
