@@ -151,7 +151,7 @@ public class RegisterView {
 				else {
 					String s = UserController.getInstance().registerUser(email, password, (UserType) usertypeComboBox.getSelectedItem(), IDNum);
 					
-					if(s.equals("GOOD")) {
+					if(s.equals("User successfully created!")) {
 						JOptionPane.showMessageDialog(RegisterViewPanel,
 			                    "User successfully created!",
 			                    "User created",
@@ -159,15 +159,9 @@ public class RegisterView {
 						setRegisterViewVisibility(false);
 						LoginView.getInstance().setLoginViewVisibility(true);
 					}
-					else if (s.equals("Password not strong")) {
-						JOptionPane.showMessageDialog(RegisterViewPanel,
-			                    "Password not strong enough!",
-			                    "User created",
-			                    JOptionPane.INFORMATION_MESSAGE);
-					}
 					else {
 						JOptionPane.showMessageDialog(RegisterViewPanel,
-			                    "User was not created",
+			                    s,
 			                    "Error",
 			                    JOptionPane.INFORMATION_MESSAGE);
 					}
