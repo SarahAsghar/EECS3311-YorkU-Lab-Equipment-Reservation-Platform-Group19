@@ -1,21 +1,40 @@
 package controller;
 
+import java.util.ArrayList;
+
+import model.DatabaseManager;
+import model.Reservation.Reservation;
 import model.User.User;
 import model.User.UserType;
+import view.AdminView;
 
 public class UserController {
 	
 	private static UserController instance;
 
 	public String loginUser(String email, String password) {
+		DatabaseManager db = DatabaseManager.getInstance();
+		
 		//get all email and passwords from database
+		ArrayList<User> users = db.loadUsers();
 		
 		//see if email and password match, 
+		User user = null;
 		
-		//if they do return user associated with it, create user and open AdminView for user
-		User u;
-		
-		
+		for(User u: users) {
+			if(u.getEmail().equals(email) && u.getPassword().equals(password)) {
+				user = u;
+				break;
+			}
+		}
+		//if they do return user associated with it, create user and open view for user
+		if(user != null) {
+			UserType t = user.getUserType();
+			ArrayList<Reservation> res = db.loadReservations();
+			AdminView v = new AdminView(t, res);
+			return "Good";
+		}
+		else
 		//if no, return fail
 		return "Fail";
 	}
