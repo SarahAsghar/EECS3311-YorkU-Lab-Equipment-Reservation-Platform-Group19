@@ -1,7 +1,7 @@
 package model.Equipment;
 
 public class Equipment {
-
+  
     private String equipmentId;
     private String name;
     private String description;
