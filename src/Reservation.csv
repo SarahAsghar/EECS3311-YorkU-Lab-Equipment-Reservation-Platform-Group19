@@ -1,1 +1,1 @@
-reservationId,startTime,endTime,actualArrivalTime,state
+reservationId,userID,startTime,endTime,actualArrivalTime,status

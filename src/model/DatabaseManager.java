@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.time.*;
 
 public class DatabaseManager {
+	
+	
 
 	private static DatabaseManager instance = null;
 	
@@ -62,7 +64,7 @@ public class DatabaseManager {
 	
 	public ArrayList<User> loadUsers(){
 		ArrayList<User> users = new ArrayList<User>();
-		return null;
+		return users;
 	}
 	
 	public void saveUsers(ArrayList<User> users) {
@@ -104,6 +106,24 @@ public class DatabaseManager {
 	}
 	
 	public void savePaymnents(ArrayList<Payment> payments) {
+		
+	}
+
+	/**
+	 * get the number of lab manager accounts created from StaticVariables.csv
+	 * @return String numberOfLabManagerAccounts
+	 */
+	public String loadNumLabManagerAccountCreated() {
+		return null;
+		
+	}
+	
+	/**
+	 * Save number of lab manager accounts created to StaticVariables.csv
+	 * @param num 
+	 */
+	public void saveNumLabManagerAccountCreated(String num) {
+		
 		
 	}
 	

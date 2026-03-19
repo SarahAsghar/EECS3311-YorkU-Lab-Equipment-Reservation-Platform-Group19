@@ -1,38 +1,37 @@
 package model.Reservation;
-import java.time.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class Reservation {
 
 	private String reservationId;
-	private LocalDateTime startTime;
-	private LocalDateTime endTime;
-	private LocalDateTime actualArrivalTime;
-	private ReservationState currentState;
+	private String userId;
+	private String EquipmentID;
+	private Date startTime;
+	private Date endTime;
 	
-	public Reservation(String id, LocalDateTime start, LocalDateTime end, LocalDateTime arrival, ReservationState state) {
-		this.reservationId = id;
-		this.startTime = start;
-		this.endTime = end;
-		this.actualArrivalTime = arrival;
-		this.currentState = state;
+	public String getReservationId() {
+		// TODO Auto-generated method stub
+		return reservationId;
+	}
+
+	public String getUserId() {
+		// TODO Auto-generated method stub
+		return userId;
+	}
+
+	public String getEquipmentID() {
+		return EquipmentID;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
 	}
 	
-	public void setState(ReservationState state) {
-		this.currentState = state;
-	}
-	
-	public void extendReservation(LocalDateTime extend) {
-		this.startTime = extend;
-	}
-	
-	public Reservation cancelReservation() {
-		Reservation temp = this;
-		this.reservationId = null;
-		this.startTime = null;
-		this.endTime = null;
-		this.actualArrivalTime = null;
-		this.currentState = null;
-		
-		return temp;
-	}
+
 }
