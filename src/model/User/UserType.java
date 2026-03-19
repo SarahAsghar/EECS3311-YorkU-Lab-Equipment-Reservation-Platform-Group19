@@ -1,5 +1,6 @@
 package model.User;
 
+
 public enum UserType {
 
 	STUDENT("Student", 10.0),
