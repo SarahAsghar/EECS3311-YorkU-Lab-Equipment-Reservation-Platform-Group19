@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import model.DatabaseManager;
 import model.Equipment.Equipment;
+import model.Equipment.EquipmentStatus;
 
 public class EquipmentController {
 
@@ -20,9 +21,7 @@ public class EquipmentController {
         return instance;
     }
 
-    public String addEquipment(String equipmentId, String name, String description,
-                               String labLocation, double hourlyFee) {
-
+    public String addEquipment(String equipmentId, String name, String description, String labLocation, double hourlyFee) {
         ArrayList<Equipment> equipmentList = db.loadEquipment();
 
         for (Equipment e : equipmentList) {
@@ -31,8 +30,8 @@ public class EquipmentController {
             }
         }
 
-        Equipment equipment = new Equipment(equipmentId, name, description, labLocation, hourlyFee);
-        equipmentList.add(equipment);
+        Equipment newEquipment = new Equipment(equipmentId, name, description, labLocation, hourlyFee);
+        equipmentList.add(newEquipment);
         db.saveEquipment(equipmentList);
 
         return "Equipment added successfully!";
@@ -88,6 +87,48 @@ public class EquipmentController {
                 e.markAvailable();
                 db.saveEquipment(equipmentList);
                 return "Equipment marked available";
+            }
+        }
+
+        return "Equipment not found";
+    }
+
+    public String removeEquipment(String equipmentId) {
+        ArrayList<Equipment> equipmentList = db.loadEquipment();
+
+        for (Equipment e : equipmentList) {
+            if (e.getEquipmentId().equalsIgnoreCase(equipmentId)) {
+                equipmentList.remove(e);
+                db.saveEquipment(equipmentList);
+                return "Equipment removed successfully!";
+            }
+        }
+
+        return "Equipment not found";
+    }
+
+    public Equipment getEquipment(String equipmentId) {
+        ArrayList<Equipment> equipmentList = db.loadEquipment();
+
+        for (Equipment e : equipmentList) {
+            if (e.getEquipmentId().equalsIgnoreCase(equipmentId)) {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<Equipment> getAllEquipment() {
+        return db.loadEquipment();
+    }
+
+    public String getEquipmentStatus(String equipmentId) {
+        ArrayList<Equipment> equipmentList = db.loadEquipment();
+
+        for (Equipment e : equipmentList) {
+            if (e.getEquipmentId().equalsIgnoreCase(equipmentId)) {
+                return e.getStatus().toString();
             }
         }
 
