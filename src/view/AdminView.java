@@ -280,7 +280,6 @@ public class AdminView {
 		for (Reservation r : reservations) {
 			Object[] rowData = {
 					r.getReservationId(),
-					r.getUserId(),
 					r.getEquipmentID(),
 					r.getStartTime().toString(),
 					r.getEndTime().toString()};

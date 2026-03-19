@@ -67,7 +67,7 @@ public class UserController {
 		}
 
 		//if true, create user and open AdminView for user
-		User newUser = new User(email, password, t, idNum, name);
+		
 		return "User successfully created!";
 	}
 
