@@ -8,25 +8,20 @@ import javax.swing.WindowConstants;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.SwingConstants;
-import java.awt.GridLayout;
 import javax.swing.JTextField;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.Button;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
-import javax.swing.border.BevelBorder;
-import java.awt.FlowLayout;
-import javax.swing.border.TitledBorder;
+
+import controller.UserController;
+
 import javax.swing.border.LineBorder;
-import javax.swing.JFormattedTextField;
-import javax.swing.JToggleButton;
+
 
 public class LoginView {
 	
@@ -41,7 +36,7 @@ public class LoginView {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close on exit
 		frame.setVisible(true);
 		frame.setResizable(false); // stop resize
-		frame.setMinimumSize(new Dimension(800, 600));
+		frame.setMinimumSize(new Dimension(800, 630));
 		frame.getContentPane().setBackground(new Color(239, 239, 239));
 		frame.getContentPane().setLayout(null);
 
@@ -110,8 +105,38 @@ public class LoginView {
 		JButton LoginBtn = new JButton("Login");
 		LoginBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		LoginBtn.setBounds(240, 167, 117, 38);
-		LoginBtn.setVisible(true);
+		LoginBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String email = EmailTextfield.getText();
+				String password = String.valueOf(PasswordTextfield.getPassword());
+				
+				if (email == null || password == null ||
+						 email.equals("") || password.equals("")) {
+					JOptionPane.showMessageDialog(LoginViewPanel,
+		                    "Enter Email and Password",
+		                    "Error",
+		                    JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					UserController c = UserController.getInstance();
+					String login = c.loginUser(email, password);
+					 if(login.equals("Fail")) {
+						JOptionPane.showMessageDialog(LoginViewPanel,
+			                    "Email and/or Password is wrong or does not exists",
+			                    "Error",
+			                    JOptionPane.INFORMATION_MESSAGE);
+					}
+					 else if (login.equals("Department has not approved this account")) {
+						 JOptionPane.showMessageDialog(LoginViewPanel,
+								 login,
+								 "Error",
+				                  JOptionPane.INFORMATION_MESSAGE);
+					 }
+				}
+			}
+		});
 		InfoPanel.add(LoginBtn);
+		LoginBtn.setVisible(true);
 		
 		JPanel RegistrationPanel = new JPanel();
 		RegistrationPanel.setBounds(100, 456, 588, 88);
@@ -149,6 +174,8 @@ public class LoginView {
 	}
 	
 	public void setLoginViewVisibility(boolean b) {
+		EmailTextfield.setText("");
+		PasswordTextfield.setText("");
 		LoginViewPanel.setVisible(b);
 	}
 	
