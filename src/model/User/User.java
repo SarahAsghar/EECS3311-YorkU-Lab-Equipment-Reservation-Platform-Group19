@@ -15,6 +15,7 @@ public class User {
 		this.userType = t;
 		this.idNum = idNum;
 		this.name = name;
+		this.status = (t == UserType.GUEST);
 	}
 	
 	public String getIDNum() {

@@ -5,6 +5,7 @@ import model.Payment.*;
 import model.Reservation.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.time.*;
 
 public class DatabaseManager {
 	
@@ -18,8 +19,6 @@ public class DatabaseManager {
 	private String paymentFilePath = "/EECS3311-YorkU-Lab-Equipment-Reservation-Platform-Group19/src/Payment.csv";
 	private String reservationFilePath = "/EECS3311-YorkU-Lab-Equipment-Reservation-Platform-Group19/src/Reservation.csv";
 	
-	// line for reading data
-	private String line = "";
 	
 	// initialize BufferedReader instances
 	private BufferedReader userFileReader = null;
@@ -81,6 +80,20 @@ public class DatabaseManager {
 	}
 	
 	public ArrayList<Reservation> loadReservations(){
+		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+		
+		try {
+			this.reservationFileReader = new BufferedReader(new FileReader(reservationFilePath));
+			String line;
+			
+			while((line = this.reservationFileReader.readLine()) != null) {
+				String[] reservationData = line.split(",");
+				//Reservation r  = new Reservation(reservationData[0], new LocalDateTime(reservationData[1]), new LocalDateTime(reservationData[2]), new LocalDateTime(reservationData[3]), new ReservationState(reservationData[4]));
+			}
+		}catch(Exception e) {
+			
+		}
+		
 		return null;
 	}
 	
