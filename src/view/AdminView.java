@@ -16,6 +16,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import controller.UserController;
+import model.Equipment.EquipmentStatus;
 import model.Reservation.Reservation;
 import model.User.User;
 import model.User.UserType;
@@ -28,14 +29,16 @@ public class AdminView {
 	private JPanel AdminViewPanel;
 	private JTable table;
 	private JFrame frame = LoginView.getFrame();
-	private JTable UsersTable;
+	private JTable Table;
 
 	public AdminView(UserType usertype, ArrayList<Reservation> reservations, ArrayList<User> users) {
+		
+		
 		if(usertype == UserType.HEADLABCOORDINATOR) {
 			headLabCoordinatorView(users);
 		}
 		else if (usertype == UserType.LABMANAGER) {
-
+			LabManagerView();
 		}
 		else  { //regularView
 			regularView(reservations);
@@ -44,6 +47,86 @@ public class AdminView {
 
 
 
+	}
+	
+	private void LabManagerView() {
+		AdminViewPanel = new JPanel();
+		AdminViewPanel.setBounds(0, 0, 800, 600);
+		AdminViewPanel.setLayout(null);
+		frame.getContentPane().add(AdminViewPanel);
+
+		JPanel labManagerPanel = new JPanel();
+		labManagerPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		labManagerPanel.setBackground(new Color(255, 255, 255));
+		labManagerPanel.setBounds(37, 82, 604, 492);
+		labManagerPanel.setLayout(null); // Keep null layout
+		AdminViewPanel.add(labManagerPanel);
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(6, 6, 592, 480); 
+		labManagerPanel.add(scrollPane);
+
+		String[] columnHeaders = {
+				"equipmentId",
+			   "name",
+			    "description",
+			    "labLocation",
+			   "status",
+			    "enabled"
+		};
+
+		DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
+		Table = new JTable(model);
+		Table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+
+		scrollPane.setViewportView(Table);
+		Table.setAutoCreateRowSorter(true);
+
+		scrollPane.revalidate();
+		scrollPane.repaint();
+
+		JLabel welcomeLabel = new JLabel("Welcome Lab Manager");
+		welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
+		welcomeLabel.setBounds(37, 6, 440, 34);
+		AdminViewPanel.add(welcomeLabel);
+
+		JLabel CurrentEquipmentsLabel = new JLabel("Current Equipments");
+		CurrentEquipmentsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+		CurrentEquipmentsLabel.setBounds(37, 47, 317, 34);
+		AdminViewPanel.add(CurrentEquipmentsLabel);
+
+		JButton logoutBtn = new JButton("Logout");
+		logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
+		logoutBtn.setBounds(666, 536, 117, 38);
+		logoutBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setAdminViewVisibility(false);
+				LoginView l = LoginView.getInstance();
+				l.setLoginViewVisibility(true);	
+			}
+
+		});
+		AdminViewPanel.add(logoutBtn);
+
+		JButton newEquipmentBtn = new JButton("Add equipment");
+		newEquipmentBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+		newEquipmentBtn.setBounds(489, 18, 294, 49);
+		newEquipmentBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				JOptionPane.showMessageDialog(AdminViewPanel,
+//						account,
+//						"Lab Manager Account Created",
+//						JOptionPane.INFORMATION_MESSAGE);
+			}
+
+		});
+		AdminViewPanel.add(newEquipmentBtn);
+		AdminViewPanel.revalidate();
+		AdminViewPanel.repaint();
 	}
 
 	private void headLabCoordinatorView(ArrayList<User> users) {
@@ -72,12 +155,12 @@ public class AdminView {
 		};
 
 		DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
-		UsersTable = new JTable(model);
-		UsersTable.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		Table = new JTable(model);
+		Table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 		addUsers(users, model);
 
-		scrollPane.setViewportView(UsersTable);
-		UsersTable.setAutoCreateRowSorter(true);
+		scrollPane.setViewportView(Table);
+		Table.setAutoCreateRowSorter(true);
 
 		scrollPane.revalidate();
 		scrollPane.repaint();
