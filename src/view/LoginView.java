@@ -36,7 +36,7 @@ public class LoginView {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close on exit
 		frame.setVisible(true);
 		frame.setResizable(false); // stop resize
-		frame.setMinimumSize(new Dimension(800, 600));
+		frame.setMinimumSize(new Dimension(800, 630));
 		frame.getContentPane().setBackground(new Color(239, 239, 239));
 		frame.getContentPane().setLayout(null);
 
@@ -126,6 +126,12 @@ public class LoginView {
 			                    "Error",
 			                    JOptionPane.INFORMATION_MESSAGE);
 					}
+					 else if (login.equals("Department has not approved this account")) {
+						 JOptionPane.showMessageDialog(LoginViewPanel,
+								 login,
+								 "Error",
+				                  JOptionPane.INFORMATION_MESSAGE);
+					 }
 				}
 			}
 		});

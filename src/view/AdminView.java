@@ -2,17 +2,22 @@ package view;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import controller.UserController;
 import model.Reservation.Reservation;
+import model.User.User;
 import model.User.UserType;
 
 import javax.swing.JTable;
@@ -23,15 +28,11 @@ public class AdminView {
 	private JPanel AdminViewPanel;
 	private JTable table;
 	private JFrame frame = LoginView.getFrame();
+	private JTable UsersTable;
 
-	public AdminView(UserType usertype, ArrayList<Reservation> reservations) {
-		AdminViewPanel = new JPanel();
-		AdminViewPanel.setBounds(0, 0, 800, 600);
-		AdminViewPanel.setLayout(null);
-		frame.getContentPane().add(AdminViewPanel);
-		regularView(reservations);
+	public AdminView(UserType usertype, ArrayList<Reservation> reservations, ArrayList<User> users) {
 		if(usertype == UserType.HEADLABCOORDINATOR) {
-
+			headLabCoordinatorView(users);
 		}
 		else if (usertype == UserType.LABMANAGER) {
 
@@ -43,6 +44,88 @@ public class AdminView {
 
 
 
+	}
+
+	private void headLabCoordinatorView(ArrayList<User> users) {
+		AdminViewPanel = new JPanel();
+		AdminViewPanel.setBounds(0, 0, 800, 600);
+		AdminViewPanel.setLayout(null);
+		frame.getContentPane().add(AdminViewPanel);
+
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel.setBackground(new Color(255, 255, 255));
+		panel.setBounds(37, 82, 604, 492);
+		panel.setLayout(null); // Keep null layout
+		AdminViewPanel.add(panel);
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(6, 6, 592, 480); 
+		panel.add(scrollPane);
+
+		String[] columnHeaders = {
+				"Status",  
+				"Email", 
+				"Name", 
+				"UserType",
+				"IdNumber"
+		};
+
+		DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
+		UsersTable = new JTable(model);
+		UsersTable.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		addUsers(users, model);
+
+		scrollPane.setViewportView(UsersTable);
+		UsersTable.setAutoCreateRowSorter(true);
+
+		scrollPane.revalidate();
+		scrollPane.repaint();
+
+		JLabel welcomeLabel = new JLabel("Welcome Head Lab Coordinator");
+		welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
+		welcomeLabel.setBounds(37, 6, 440, 34);
+		AdminViewPanel.add(welcomeLabel);
+
+		JLabel CurrentReservationsLabel = new JLabel("Current Users");
+		CurrentReservationsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+		CurrentReservationsLabel.setBounds(37, 47, 317, 34);
+		AdminViewPanel.add(CurrentReservationsLabel);
+
+		JButton logoutBtn = new JButton("Logout");
+		logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
+		logoutBtn.setBounds(666, 536, 117, 38);
+		logoutBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setAdminViewVisibility(false);
+				LoginView l = LoginView.getInstance();
+				l.setLoginViewVisibility(true);	
+			}
+
+		});
+		AdminViewPanel.add(logoutBtn);
+
+		JButton newLabManagerAccountBtn = new JButton("Generate Lab Manager Account");
+		newLabManagerAccountBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+		newLabManagerAccountBtn.setBounds(489, 18, 294, 49);
+		newLabManagerAccountBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String account = UserController.getInstance().createLabManagerUser();
+				JOptionPane.showMessageDialog(AdminViewPanel,
+						account,
+						"Lab Manager Account Created",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+
+		});
+		AdminViewPanel.add(newLabManagerAccountBtn);
+		AdminViewPanel.revalidate();
+		AdminViewPanel.repaint();
+		
 	}
 
 	public void regularView(ArrayList<Reservation> reservations) {
@@ -82,11 +165,31 @@ public class AdminView {
 		JButton logoutBtn = new JButton("Logout");
 		logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
 		logoutBtn.setBounds(666, 536, 117, 38);
+		logoutBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setAdminViewVisibility(false);
+				LoginView l = LoginView.getInstance();
+				l.setLoginViewVisibility(true);	
+			}
+
+		});
 		AdminViewPanel.add(logoutBtn);
+
 
 		JButton newReservationBtn = new JButton("New Reservation");
 		newReservationBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		newReservationBtn.setBounds(612, 18, 171, 49);
+		newReservationBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setAdminViewVisibility(false);
+				ReservationView r = new ReservationView();			
+			}
+
+		});
 		AdminViewPanel.add(newReservationBtn);
 	}
 
@@ -100,5 +203,23 @@ public class AdminView {
 					r.getEndTime().toString()};
 			model.addRow(rowData);
 		}
+	}
+
+	private void addUsers(ArrayList<User> users, DefaultTableModel model) {
+		if (users != null) {
+			for (User r : users) {
+				Object[] rowData = {
+						r.getStatus(),
+						r.getEmail(),
+						r.getName(),
+						r.getUserType(),
+						r.getIDNum()};
+				model.addRow(rowData);
+			}
+		}
+	}
+
+	public void setAdminViewVisibility(boolean b) {
+		AdminViewPanel.setVisible(b);
 	}
 }

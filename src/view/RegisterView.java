@@ -149,7 +149,7 @@ public class RegisterView {
 				
 				}
 				else {
-					String s = UserController.getInstance().registerUser(email, password, (UserType) usertypeComboBox.getSelectedItem(), IDNum);
+					String s = UserController.getInstance().registerUser(email, password, (UserType) usertypeComboBox.getSelectedItem(), IDNum, name);
 					
 					if(s.equals("User successfully created!")) {
 						JOptionPane.showMessageDialog(RegisterViewPanel,
