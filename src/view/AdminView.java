@@ -285,85 +285,252 @@ public class AdminView {
 	}
 
 	private void headLabCoordinatorView(ArrayList<User> users) {
-		AdminViewPanel = new JPanel();
-		AdminViewPanel.setBounds(0, 0, 800, 600);
-		AdminViewPanel.setLayout(null);
-		frame.getContentPane().add(AdminViewPanel);
+	    AdminViewPanel = new JPanel();
+	    AdminViewPanel.setBounds(0, 0, 800, 600);
+	    AdminViewPanel.setLayout(null);
+	    frame.getContentPane().add(AdminViewPanel);
 
-		JPanel panel = new JPanel();
-		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel.setBackground(new Color(255, 255, 255));
-		panel.setBounds(37, 82, 604, 492);
-		panel.setLayout(null); // Keep null layout
-		AdminViewPanel.add(panel);
+	    JPanel panel = new JPanel();
+	    panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+	    panel.setBackground(new Color(255, 255, 255));
+	    panel.setBounds(37, 82, 604, 492);
+	    panel.setLayout(null);
+	    AdminViewPanel.add(panel);
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(6, 6, 592, 480); 
-		panel.add(scrollPane);
+	    JScrollPane scrollPane = new JScrollPane();
+	    scrollPane.setBounds(6, 6, 592, 480); 
+	    panel.add(scrollPane);
 
-		String[] columnHeaders = {
-				"Status",  
-				"Email", 
-				"Name", 
-				"UserType",
-				"IdNumber"
-		};
+	    String[] columnHeaders = {
+	            "Status",  
+	            "Email", 
+	            "Name", 
+	            "UserType",
+	            "IdNumber"
+	    };
 
-		DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
-		Table = new JTable(model);
-		Table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
-		addUsers(users, model);
+	    DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
+	    Table = new JTable(model);
+	    Table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+	    
+	    addUsersWithUnapprovedFirst(users, model);
 
-		scrollPane.setViewportView(Table);
-		Table.setAutoCreateRowSorter(true);
+	    scrollPane.setViewportView(Table);
+	    Table.setAutoCreateRowSorter(true);
+	    
+	    setupUserContextMenu(model, users);
 
-		scrollPane.revalidate();
-		scrollPane.repaint();
+	    scrollPane.revalidate();
+	    scrollPane.repaint();
 
-		JLabel welcomeLabel = new JLabel("Welcome Head Lab Coordinator");
-		welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		welcomeLabel.setBounds(37, 6, 440, 34);
-		AdminViewPanel.add(welcomeLabel);
+	    JLabel welcomeLabel = new JLabel("Welcome Head Lab Coordinator");
+	    welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
+	    welcomeLabel.setBounds(37, 6, 440, 34);
+	    AdminViewPanel.add(welcomeLabel);
 
-		JLabel CurrentReservationsLabel = new JLabel("Current Users");
-		CurrentReservationsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
-		CurrentReservationsLabel.setBounds(37, 47, 317, 34);
-		AdminViewPanel.add(CurrentReservationsLabel);
+	    JLabel CurrentReservationsLabel = new JLabel("Current Users");
+	    CurrentReservationsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+	    CurrentReservationsLabel.setBounds(37, 47, 317, 34);
+	    AdminViewPanel.add(CurrentReservationsLabel);
 
-		JButton logoutBtn = new JButton("Logout");
-		logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
-		logoutBtn.setBounds(666, 536, 117, 38);
-		logoutBtn.addActionListener(new ActionListener() {
+	    JButton logoutBtn = new JButton("Logout");
+	    logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
+	    logoutBtn.setBounds(666, 536, 117, 38);
+	    logoutBtn.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setAdminViewVisibility(false);
-				LoginView l = LoginView.getInstance();
-				l.setLoginViewVisibility(true);	
-			}
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            setAdminViewVisibility(false);
+	            LoginView l = LoginView.getInstance();
+	            l.setLoginViewVisibility(true);    
+	        }
 
-		});
-		AdminViewPanel.add(logoutBtn);
+	    });
+	    AdminViewPanel.add(logoutBtn);
 
-		JButton newLabManagerAccountBtn = new JButton("Generate Lab Manager Account");
-		newLabManagerAccountBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-		newLabManagerAccountBtn.setBounds(489, 18, 294, 49);
-		newLabManagerAccountBtn.addActionListener(new ActionListener() {
+	    JButton newLabManagerAccountBtn = new JButton("Generate Lab Manager Account");
+	    newLabManagerAccountBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+	    newLabManagerAccountBtn.setBounds(489, 18, 294, 49);
+	    newLabManagerAccountBtn.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String account = UserController.getInstance().createLabManagerUser();
-				JOptionPane.showMessageDialog(AdminViewPanel,
-						account,
-						"Lab Manager Account Created",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            String account = UserController.getInstance().createLabManagerUser();
+	            JOptionPane.showMessageDialog(AdminViewPanel,
+	                    account,
+	                    "Lab Manager Account Created",
+	                    JOptionPane.INFORMATION_MESSAGE);
+	            
+	            refreshUserTable(model, users);
+	        }
 
-		});
-		AdminViewPanel.add(newLabManagerAccountBtn);
-		AdminViewPanel.revalidate();
-		AdminViewPanel.repaint();
-		
+	    });
+	    AdminViewPanel.add(newLabManagerAccountBtn);
+	    AdminViewPanel.revalidate();
+	    AdminViewPanel.repaint();
+	}
+
+	private void addUsersWithUnapprovedFirst(ArrayList<User> users, DefaultTableModel model) {
+	    model.setRowCount(0);
+	    
+	    ArrayList<User> unapprovedUsers = new ArrayList<>();
+	    ArrayList<User> approvedUsers = new ArrayList<>();
+	    
+	    for (User user : users) {
+	        if (user.getStatus()) {
+	            approvedUsers.add(user);
+	        } else {
+	            unapprovedUsers.add(user);
+	        }
+	    }
+	    
+	    for (User user : unapprovedUsers) {
+	        addUserToTable(user, model);
+	    }
+	    
+	    for (User user : approvedUsers) {
+	        addUserToTable(user, model);
+	    }
+	}
+
+	private void addUserToTable(User user, DefaultTableModel model) {
+	    String status = user.getStatus() ? "Approved" : "Pending Approval";
+	    String userType = "";
+	    
+	    UserType type = user.getUserType();
+	    if (type != null) {
+	        userType = type.getType(); 
+	    } else {
+	        userType = "Unknown";
+	    }
+	    
+	    Object[] rowData = {
+	        status,
+	        user.getEmail(),
+	        user.getName(),
+	        userType,
+	        user.getIDNum()
+	    };
+	    model.addRow(rowData);
+	}
+
+	private void setupUserContextMenu(DefaultTableModel model, ArrayList<User> users) {
+	    JPopupMenu userMenu = new JPopupMenu();
+	    
+	    JMenuItem approveItem = new JMenuItem("Approve User");
+	    JMenuItem rejectItem = new JMenuItem("Reject User");
+	    
+	    userMenu.add(approveItem);
+	    userMenu.add(rejectItem);
+	    
+	    // Approve action
+	    approveItem.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            int selectedRow = Table.getSelectedRow();
+	            if (selectedRow >= 0) {
+	                int modelRow = Table.convertRowIndexToModel(selectedRow);
+	                String status = Table.getModel().getValueAt(modelRow, 0).toString();
+	                String email = Table.getModel().getValueAt(modelRow, 1).toString();
+	                String name = Table.getModel().getValueAt(modelRow, 2).toString();
+	                
+	                if (status.equals("Approved")) {
+	                    JOptionPane.showMessageDialog(AdminViewPanel,
+	                        "This user is already approved!",
+	                        "Information",
+	                        JOptionPane.INFORMATION_MESSAGE);
+	                    return;
+	                }
+	                
+	                int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
+	                    "Approve user: " + name + " (" + email + ")?",
+	                    "Confirm Approval",
+	                    JOptionPane.YES_NO_OPTION,
+	                    JOptionPane.QUESTION_MESSAGE);
+	                
+	                if (confirm == JOptionPane.YES_OPTION) {
+	                    boolean success = UserController.getInstance().approveUser(email);
+	                    
+	                    if (success) {
+	                        // Update the table
+	                        Table.getModel().setValueAt("Approved", modelRow, 0);
+	                        JOptionPane.showMessageDialog(AdminViewPanel,
+	                            "User approved successfully!",
+	                            "Success",
+	                            JOptionPane.INFORMATION_MESSAGE);
+	                        
+	                        refreshUserTable(model, users);
+	                    } else {
+	                        JOptionPane.showMessageDialog(AdminViewPanel,
+	                            "Failed to approve user. Please try again.",
+	                            "Error",
+	                            JOptionPane.ERROR_MESSAGE);
+	                    }
+	                }
+	            }
+	        }
+	    });
+	    
+	    // Reject action
+	    rejectItem.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            int selectedRow = Table.getSelectedRow();
+	            if (selectedRow >= 0) {
+	                int modelRow = Table.convertRowIndexToModel(selectedRow);
+	                String status = Table.getModel().getValueAt(modelRow, 0).toString();
+	                String email = Table.getModel().getValueAt(modelRow, 1).toString();
+	                String name = Table.getModel().getValueAt(modelRow, 2).toString();
+	                String idNumber = Table.getModel().getValueAt(modelRow, 4).toString();
+	                
+	                // Confirm rejection with user details
+	                int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
+	                    "Are you sure you want to reject this user?\n\n" +
+	                    "Name: " + name + "\n" +
+	                    "Email: " + email + "\n" +
+	                    "ID: " + idNumber,
+	                    "Confirm Rejection",
+	                    JOptionPane.YES_NO_OPTION,
+	                    JOptionPane.WARNING_MESSAGE);
+	                
+	                if (confirm == JOptionPane.YES_OPTION) {
+	                    boolean success = UserController.getInstance().removeUser(email);
+	                    
+	                    if (success) {
+	                        model.removeRow(modelRow);
+	                        JOptionPane.showMessageDialog(AdminViewPanel,
+	                            "User rejected and removed successfully!",
+	                            "Success",
+	                            JOptionPane.INFORMATION_MESSAGE);
+	                    } else {
+	                        JOptionPane.showMessageDialog(AdminViewPanel,
+	                            "Failed to reject user. Please try again.",
+	                            "Error",
+	                            JOptionPane.ERROR_MESSAGE);
+	                    }
+	                }
+	            }
+	        }
+	    });
+	    
+	    Table.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mousePressed(MouseEvent e) {
+	            if (SwingUtilities.isRightMouseButton(e)) {
+	                int row = Table.rowAtPoint(e.getPoint());
+	                if (row >= 0) {
+	                    Table.setRowSelectionInterval(row, row);
+	                    userMenu.show(Table, e.getX(), e.getY());
+	                }
+	            }
+	        }
+	    });
+	}
+
+	private void refreshUserTable(DefaultTableModel model, ArrayList<User> users) {
+	    if (users != null) {
+	        addUsersWithUnapprovedFirst(users, model);
+	    }
 	}
 
 	public void regularView(ArrayList<Reservation> reservations) {

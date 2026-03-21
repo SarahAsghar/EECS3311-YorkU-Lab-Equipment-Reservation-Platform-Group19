@@ -14,6 +14,7 @@ public class UserController {
 	private static UserController instance;
 	private DatabaseManager db = DatabaseManager.getInstance();
 	private static User LoggedInUser;
+	
 
 	public String loginUser(String email, String password) {
 		ArrayList<User> users = db.loadUsers();
@@ -141,6 +142,34 @@ public class UserController {
 			instance = new UserController();
 		}
 		return instance;
+	}
+
+	public boolean approveUser(String email) {
+		//find user in db
+		ArrayList<User> users = db.loadUsers();
+		
+		for(User u : users) {
+			if (u.getEmail().equals(email)) {
+				u.setStatus(true);
+				db.saveUsers(users);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean removeUser(String email) {
+		ArrayList<User> users = db.loadUsers();
+		
+		for(User u : users) {
+			if (u.getEmail().equals(email)) {
+				u.setStatus(false);
+				users.remove(u);
+				db.saveUsers(users);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
