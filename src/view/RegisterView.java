@@ -134,16 +134,21 @@ public class RegisterView {
 		registerBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		registerBtn.setBounds(217, 258, 147, 38);
 		registerBtn.addActionListener(new ActionListener() {
+			
 			public void actionPerformed(ActionEvent e) {
 				String name = NameTextfield.getText();
 				String email = emailTextfield.getText();
 				String password = String.valueOf(passwordTextfield.getPassword());
 				String IDNum = IDNumberTextfield.getText();
 				
-				if(name == null || email == null || password == null || IDNum != null ||
+				if(name == null || email == null || password == null || IDNum == null ||
 						name.equals("") || email.equals("") || password.equals("") || IDNum.equals("")) {
+					System.out.println(name);
+					System.out.println(email);
+					System.out.println(password);
+					System.out.println(IDNum);
 					JOptionPane.showMessageDialog(RegisterViewPanel,
-		                    "Enter Name, Email, and Password",
+		                    "Enter Name, Email, IDNum, and Password",
 		                    "Error",
 		                    JOptionPane.INFORMATION_MESSAGE);
 				
@@ -209,6 +214,8 @@ public class RegisterView {
 		emailTextfield.setText("");
 		passwordTextfield.setText("");
 		NameTextfield.setText("");
+		IDNumberTextfield.setText("");
 		RegisterViewPanel.setVisible(b);
+		
 	}
 }

@@ -3,23 +3,23 @@ package controller;
 import java.util.ArrayList;
 
 import model.DatabaseManager;
+import model.Equipment.Equipment;
 import model.Reservation.Reservation;
 import model.User.User;
-import model.User.UserType;
+import model.User.*;
 import view.AdminView;
 
 public class UserController {
 
 	private static UserController instance;
 	private DatabaseManager db = DatabaseManager.getInstance();
+	private static User LoggedInUser;
 
 	public String loginUser(String email, String password) {
-		//get all email and passwords from database
 		ArrayList<User> users = db.loadUsers();
 
 		//see if email and password match, 
 		User user = null;
-
 		for(User u: users) {
 			if(u.getEmail().equals(email) && u.getPassword().equals(password)) {
 				user = u;
@@ -30,11 +30,13 @@ public class UserController {
 		if(user != null) {
 			UserType t = user.getUserType();
 			ArrayList<Reservation> res = db.loadReservations();
+			ArrayList<Equipment> e = db.loadEquipment();
 			
 
 			//if user is approved
 			if(user.getStatus() == true) {
-				AdminView v = new AdminView(t, res, users);
+				LoggedInUser = user;
+				AdminView v = new AdminView(t, res, users, e);
 				return "Good";
 			}
 			else {
@@ -67,7 +69,7 @@ public class UserController {
 		}
 
 		//if true, create user and open AdminView for user
-		
+		User u = UserFactory.createUser(email, password, t, idNum, name, users);
 		return "User successfully created!";
 	}
 
@@ -115,9 +117,13 @@ public class UserController {
 		db.saveUsers(users);
 		db.saveNumLabManagerAccountCreated(String.valueOf(num));
 		
+		UserFactory.createLabManager(email, password, number, password, users);
+		
 		return"New Lab Manager Created:\n"
 				+ "email=" + email +"\n"
 				+ "password=" + password;
+		
+		
 	}
 
 
