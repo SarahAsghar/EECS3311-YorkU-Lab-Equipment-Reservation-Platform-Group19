@@ -59,10 +59,7 @@ public class AdminView {
 
 	}
 	
-	/**
-	 * Will see equipment table, logout btn, add equipment btn
-	 * Right click entry in table to enable, disable, or mark as unavailable
-	 */
+
 	private void LabManagerView(ArrayList<Equipment> equipments) {
 	    AdminViewPanel = new JPanel();
 	    AdminViewPanel.setBounds(0, 0, 800, 600);
@@ -252,7 +249,7 @@ public class AdminView {
 	                        return;
 	                    }
 	                    
-	                    String result = EquipmentController.addEquipment(equipmentId, name, description, labLocation);
+	                    String result = EquipmentController.getInstance().addEquipment(equipmentId, name, description, labLocation, 1);
 	                    
 	                    if (result != null && result.equals("Good")) {
 	                        Object[] rowData = {
@@ -539,6 +536,11 @@ public class AdminView {
 	}
 
 	public void regularView(ArrayList<Reservation> res) {
+	    AdminViewPanel = new JPanel();
+	    AdminViewPanel.setBounds(0, 0, 800, 600);
+	    AdminViewPanel.setLayout(null);
+	    frame.getContentPane().add(AdminViewPanel);
+	    
 	    JPanel panel = new JPanel();
 	    panel.setBorder(new LineBorder(new Color(0, 0, 0)));
 	    panel.setBackground(new Color(255, 255, 255));

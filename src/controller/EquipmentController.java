@@ -15,8 +15,6 @@ public class EquipmentController {
     }
 
 
-
-
     public static synchronized EquipmentController getInstance() {
         if (instance == null) {
             instance = new EquipmentController();
@@ -137,4 +135,10 @@ public class EquipmentController {
 
         return "Equipment not found";
     }
+
+
+	public static boolean updateEquipmentStatus(String equipmentId, EquipmentStatus currentStatus) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

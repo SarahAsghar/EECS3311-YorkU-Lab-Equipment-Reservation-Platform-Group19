@@ -29,6 +29,8 @@ public class LoginView {
 	private JTextField EmailTextfield;
 	private JPasswordField PasswordTextfield;
 	private JPanel LoginViewPanel;
+	private JPanel InfoPanel = new JPanel();
+	private JButton LoginBtn = new JButton("Login");
 	
 	private static LoginView instance;
 	
@@ -70,7 +72,6 @@ public class LoginView {
 		LoginLabel.setBounds(100, 155, 588, 63);
 		LoginViewPanel.add(LoginLabel);
 		
-		JPanel InfoPanel = new JPanel();
 		InfoPanel.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
 		InfoPanel.setBackground(new Color(255, 255, 255));
 		InfoPanel.setBounds(100, 217, 588, 226);
@@ -102,7 +103,7 @@ public class LoginView {
 		PasswordTextfield.setBounds(142, 111, 399, 31);
 		InfoPanel.add(PasswordTextfield);
 		
-		JButton LoginBtn = new JButton("Login");
+		
 		LoginBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		LoginBtn.setBounds(240, 167, 117, 38);
 		LoginBtn.addActionListener(new ActionListener() {
@@ -136,7 +137,6 @@ public class LoginView {
 			}
 		});
 		InfoPanel.add(LoginBtn);
-		LoginBtn.setVisible(true);
 		
 		JPanel RegistrationPanel = new JPanel();
 		RegistrationPanel.setBounds(100, 456, 588, 88);
@@ -177,6 +177,8 @@ public class LoginView {
 		EmailTextfield.setText("");
 		PasswordTextfield.setText("");
 		LoginViewPanel.setVisible(b);
+		InfoPanel.setVisible(b);
+		LoginBtn.setVisible(b);
 	}
 	
 	public static JFrame getFrame() {

@@ -19,7 +19,6 @@ public class UserController {
 	public String loginUser(String email, String password) {
 		ArrayList<User> users = db.loadUsers();
 
-		//see if email and password match, 
 		User user = null;
 		for(User u: users) {
 			if(u.getEmail().equals(email) && u.getPassword().equals(password)) {
@@ -85,6 +84,8 @@ public class UserController {
 
 		//if true, create user and open AdminView for user
 		User u = UserFactory.createUser(email, password, t, idNum, name, users);
+		users.add(u);
+		db.saveUsers(users);
 		return "User successfully created!";
 	}
 
@@ -127,12 +128,12 @@ public class UserController {
 		String password = "LabManager@" + num;
 		
 		User u = new User(email, password, UserType.LABMANAGER, String.valueOf(num), ("LabManager" + num));
+		db.saveNumLabManagerAccountCreated(String.valueOf(num));
 		ArrayList<User> users = db.loadUsers();
+		UserFactory.createLabManager(email, password, number, password, users);
+		
 		users.add(u);
 		db.saveUsers(users);
-		db.saveNumLabManagerAccountCreated(String.valueOf(num));
-		
-		UserFactory.createLabManager(email, password, number, password, users);
 		
 		return"New Lab Manager Created:\n"
 				+ "email=" + email +"\n"
