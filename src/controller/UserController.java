@@ -37,7 +37,21 @@ public class UserController {
 			//if user is approved
 			if(user.getStatus() == true) {
 				LoggedInUser = user;
-				AdminView v = new AdminView(t, res, users, e);
+				
+				if(t != UserType.HEADLABCOORDINATOR && t != UserType.LABMANAGER) {
+					ArrayList<Reservation> userRes = new ArrayList<Reservation>();
+					for(Reservation r: res) {
+						if(r.getUserId().equals(user.getIDNum())) {
+							userRes.add(r);
+						}
+					}
+					
+					AdminView v = new AdminView(t, userRes, users, e);
+					
+				}
+				else  {
+					AdminView v = new AdminView(t, res, users, e);
+				}
 				return "Good";
 			}
 			else {
@@ -170,6 +184,10 @@ public class UserController {
 			}
 		}
 		return false;
+	}
+	
+	public static User getLoggedInUser() {
+		return LoggedInUser;
 	}
 
 }

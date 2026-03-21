@@ -63,6 +63,11 @@ public class Reservation {
 	public LocalDateTime getEndTime() {
 		return endTime;
 	}
+
+	public ReservationState getState() {
+		// TODO Auto-generated method stub
+		return currentState;
+	}
 	
 
 }

@@ -14,7 +14,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -23,6 +27,7 @@ import controller.EquipmentController;
 import controller.UserController;
 import model.Equipment.Equipment;
 import model.Equipment.EquipmentStatus;
+import model.Reservation.CompletedState;
 import model.Reservation.Reservation;
 import model.User.User;
 import model.User.UserType;
@@ -533,69 +538,230 @@ public class AdminView {
 	    }
 	}
 
-	public void regularView(ArrayList<Reservation> reservations) {
-		JPanel panel = new JPanel();
-		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel.setBackground(new Color(255, 255, 255));
-		panel.setBounds(37, 82, 604, 492);
-		AdminViewPanel.add(panel);
-		panel.setLayout(null);
+	public void regularView(ArrayList<Reservation> res) {
+	    JPanel panel = new JPanel();
+	    panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+	    panel.setBackground(new Color(255, 255, 255));
+	    panel.setBounds(37, 82, 604, 492);
+	    AdminViewPanel.add(panel);
+	    panel.setLayout(null);
 
-		String[] columnHeaders = {
-				"Reservation ID",  
-				"Equipment", 
-				"Start Time", 
-				"End Time"
-		};
+	    String[] columnHeaders = {
+	            "Reservation ID",  
+	            "Equipment", 
+	            "Start Time", 
+	            "End Time",
+	            "Status"
+	    };
 
-		DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
-		table = new JTable(model);
-		table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
-		table.setBounds(0, 0, 604, 492);
-		panel.add(table);
-		JScrollPane scrollPane = new JScrollPane(table);
-		panel.add(scrollPane);
-		addReservations(reservations, model);
+	    DefaultTableModel model = new DefaultTableModel(columnHeaders, 0);
+	    table = new JTable(model) {
+	        @Override
+	        public Class<?> getColumnClass(int column) {
+	            // Allow sorting by dates properly
+	            if (column == 2 || column == 3) {
+	                return Date.class;
+	            }
+	            return String.class;
+	        }
+	        
+	        @Override
+	        public java.awt.Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+	            java.awt.Component c = super.prepareRenderer(renderer, row, column);
+	            
+	            int modelRow = convertRowIndexToModel(row);
+	            String status = (String) getModel().getValueAt(modelRow, 4);
+	            
+	            if (!isRowSelected(row)) {
+	                if (status.equals("Completed")) {
+	                    c.setBackground(new Color(200, 230, 200)); 
+	                } else if (status.equals("Missed")) {
+	                    c.setBackground(new Color(255, 200, 200)); 
+	                } else if (status.equals("Upcoming")) {
+	                    c.setBackground(Color.WHITE); 
+	                } else {
+	                    c.setBackground(Color.WHITE);
+	                }
+	            }
+	            
+	            return c;
+	        }
+	    };
+	    
+	    table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+	    table.setAutoCreateRowSorter(true);
+	    
+	    // Add reservations sorted by upcoming first
+	    addReservationsSorted(res, model);
+	    
+	    JScrollPane scrollPane = new JScrollPane(table);
+	    scrollPane.setBounds(0, 0, 604, 492);
+	    panel.add(scrollPane);
 
-		JLabel welcomeLabel = new JLabel("Welcome ");
-		welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		welcomeLabel.setBounds(37, 6, 317, 34);
-		AdminViewPanel.add(welcomeLabel);
+	    JLabel welcomeLabel = new JLabel("Welcome " + UserController.getLoggedInUser().getName());
+	    welcomeLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
+	    welcomeLabel.setBounds(37, 6, 500, 34);
+	    AdminViewPanel.add(welcomeLabel);
 
-		JLabel CurrentReservationsLabel = new JLabel("Current Reservations");
-		CurrentReservationsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
-		CurrentReservationsLabel.setBounds(37, 47, 317, 34);
-		AdminViewPanel.add(CurrentReservationsLabel);
+	    JLabel CurrentReservationsLabel = new JLabel("Current Reservations");
+	    CurrentReservationsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+	    CurrentReservationsLabel.setBounds(37, 47, 317, 34);
+	    AdminViewPanel.add(CurrentReservationsLabel);
 
-		JButton logoutBtn = new JButton("Logout");
-		logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
-		logoutBtn.setBounds(666, 536, 117, 38);
-		logoutBtn.addActionListener(new ActionListener() {
+	    JButton logoutBtn = new JButton("Logout");
+	    logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
+	    logoutBtn.setBounds(666, 536, 117, 38);
+	    logoutBtn.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setAdminViewVisibility(false);
-				LoginView l = LoginView.getInstance();
-				l.setLoginViewVisibility(true);	
-			}
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            setAdminViewVisibility(false);
+	            LoginView l = LoginView.getInstance();
+	            l.setLoginViewVisibility(true);    
+	        }
 
-		});
-		AdminViewPanel.add(logoutBtn);
+	    });
+	    AdminViewPanel.add(logoutBtn);
 
+	    setupReservationContextMenu(model, res);
+	    
+	    JButton newReservationBtn = new JButton("New Reservation");
+	    newReservationBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+	    newReservationBtn.setBounds(612, 18, 171, 49);
+	    newReservationBtn.addActionListener(new ActionListener() {
 
-		JButton newReservationBtn = new JButton("New Reservation");
-		newReservationBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-		newReservationBtn.setBounds(612, 18, 171, 49);
-		newReservationBtn.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            setAdminViewVisibility(false);
+	            ReservationView r = new ReservationView(); 
+	        }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setAdminViewVisibility(false);
-				ReservationView r = new ReservationView();			
-			}
+	    });
+	    AdminViewPanel.add(newReservationBtn);
+	    
+	    AdminViewPanel.revalidate();
+	    AdminViewPanel.repaint();
+	}
 
-		});
-		AdminViewPanel.add(newReservationBtn);
+	private void addReservationsSorted(ArrayList<Reservation> reservations, DefaultTableModel model) {
+	    model.setRowCount(0);
+	    
+	    ArrayList<Reservation> sortedReservations = new ArrayList<>(reservations);
+	    sortedReservations.sort(new Comparator<Reservation>() {
+	        @Override
+	        public int compare(Reservation r1, Reservation r2) {
+	            return r1.getStartTime().compareTo(r2.getStartTime());
+	        }
+	    });
+	    
+	    LocalDateTime currentDate = LocalDateTime.now() ;
+	    
+	    for (Reservation reservation : sortedReservations) {
+	        String status = determineReservationStatus(reservation, currentDate);
+	        
+	        Object[] rowData = {
+	            reservation.getReservationId(),
+	            reservation.getEquipmentID(),
+	            reservation.getStartTime(),
+	            reservation.getEndTime(),
+	            status
+	        };
+	        model.addRow(rowData);
+	    }
+	}
+
+	private String determineReservationStatus(Reservation reservation, LocalDateTime currentDate) {
+	    LocalDateTime endTime = reservation.getEndTime();
+	    
+	    if (endTime.isBefore(currentDate)) {
+	        // Reservation has passed
+	        if (reservation.getState() instanceof CompletedState) {
+	            return "Completed";
+	        } else {
+	            return "Missed";
+	        }
+	    } else {
+	        return "Upcoming";
+	    }
+	}
+
+	// Setup right-click context menu for modify/cancel
+	private void setupReservationContextMenu(DefaultTableModel model, ArrayList<Reservation> res) {
+	    JPopupMenu reservationMenu = new JPopupMenu();
+	    
+	    JMenuItem modifyCancelItem = new JMenuItem("Modify/Cancel Reservation");
+	    reservationMenu.add(modifyCancelItem);
+	    
+	    modifyCancelItem.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            int selectedRow = table.getSelectedRow();
+	            if (selectedRow >= 0) {
+	                int modelRow = table.convertRowIndexToModel(selectedRow);
+	                String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
+	                String status = table.getModel().getValueAt(modelRow, 4).toString();
+	                
+	                // Find the full reservation object
+	                Reservation selectedReservation = findReservationById(reservationId, res);
+	                
+	                if (selectedReservation != null) {
+	                    // Check if reservation can be modified/cancelled
+	                    if (status.equals("Missed") || status.equals("Completed")) {
+	                        JOptionPane.showMessageDialog(AdminViewPanel,
+	                            "Cannot modify or cancel a reservation that has already passed!",
+	                            "Invalid Action",
+	                            JOptionPane.WARNING_MESSAGE);
+	                        return;
+	                    }
+	                    
+	                    // Confirm action
+	                    int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
+	                        "Do you want to modify or cancel this reservation?\n\n" +
+	                        "Reservation ID: " + reservationId + "\n" +
+	                        "Equipment: " + table.getModel().getValueAt(modelRow, 1) + "\n" +
+	                        "Start Time: " + table.getModel().getValueAt(modelRow, 2),
+	                        "Modify/Cancel Reservation",
+	                        JOptionPane.YES_NO_OPTION,
+	                        JOptionPane.QUESTION_MESSAGE);
+	                    
+	                    if (confirm == JOptionPane.YES_OPTION) {
+	                        setAdminViewVisibility(false);
+	                        ReservationView r = new ReservationView(selectedReservation); // Constructor with existing reservation
+	                    }
+	                } else {
+	                    JOptionPane.showMessageDialog(AdminViewPanel,
+	                        "Error: Could not find reservation details.",
+	                        "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+	                }
+	            }
+	        }
+	    });
+	    
+	    // Add mouse listener to table for right-click
+	    table.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mousePressed(MouseEvent e) {
+	            if (SwingUtilities.isRightMouseButton(e)) {
+	                int row = table.rowAtPoint(e.getPoint());
+	                if (row >= 0) {
+	                    table.setRowSelectionInterval(row, row);
+	                    reservationMenu.show(table, e.getX(), e.getY());
+	                }
+	            }
+	        }
+	    });
+	}
+
+	private Reservation findReservationById(String id, ArrayList<Reservation> reservations) {
+	    // This assumes you have access to the list of reservations
+	    // You may need to store the reservations list as a class field
+	    for (Reservation r : reservations) { // Assuming you have a field for current reservations
+	        if (r.getReservationId().equals(id)) {
+	            return r;
+	        }
+	    }
+	    return null;
 	}
 
 	private void addReservations(ArrayList<Reservation> reservations, DefaultTableModel model) {
@@ -609,19 +775,7 @@ public class AdminView {
 		}
 	}
 
-	private void addUsers(ArrayList<User> users, DefaultTableModel model) {
-		if (users != null) {
-			for (User r : users) {
-				Object[] rowData = {
-						r.getStatus(),
-						r.getEmail(),
-						r.getName(),
-						r.getUserType(),
-						r.getIDNum()};
-				model.addRow(rowData);
-			}
-		}
-	}
+
 	
 	private void addEquipment(ArrayList<Equipment> equipments, DefaultTableModel model) {
 		if(equipments != null) {
