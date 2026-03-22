@@ -22,25 +22,22 @@ import controller.UserController;
 
 import javax.swing.border.LineBorder;
 
-
 public class LoginView {
 	
 	private static JFrame frame = new JFrame("EquipmentReservationSystem");
 	private JTextField EmailTextfield;
 	private JPasswordField PasswordTextfield;
 	private JPanel LoginViewPanel;
-	private JPanel InfoPanel = new JPanel();
-	private JButton LoginBtn = new JButton("Login");
 	
 	private static LoginView instance;
 	
 	private LoginView() {
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close on exit
-		frame.setVisible(true);
-		frame.setResizable(false); // stop resize
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setResizable(false);
 		frame.setMinimumSize(new Dimension(800, 630));
 		frame.getContentPane().setBackground(new Color(239, 239, 239));
 		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
 
 		LoginViewPanel = new JPanel();
 		LoginViewPanel.setBounds(0, 0, 800, 600);
@@ -72,6 +69,7 @@ public class LoginView {
 		LoginLabel.setBounds(100, 155, 588, 63);
 		LoginViewPanel.add(LoginLabel);
 		
+		JPanel InfoPanel = new JPanel();
 		InfoPanel.setBorder(new LineBorder(new Color(0, 0, 0), 2, true));
 		InfoPanel.setBackground(new Color(255, 255, 255));
 		InfoPanel.setBounds(100, 217, 588, 226);
@@ -103,7 +101,7 @@ public class LoginView {
 		PasswordTextfield.setBounds(142, 111, 399, 31);
 		InfoPanel.add(PasswordTextfield);
 		
-		
+		JButton LoginBtn = new JButton("Login");
 		LoginBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		LoginBtn.setBounds(240, 167, 117, 38);
 		LoginBtn.addActionListener(new ActionListener() {
@@ -160,10 +158,6 @@ public class LoginView {
 		Registerbtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		Registerbtn.setBounds(236, 25, 117, 38);
 		RegistrationPanel.add(Registerbtn);
-		
-		
-		
-		
 	}
 	
 	public static synchronized LoginView getInstance() {
@@ -174,16 +168,21 @@ public class LoginView {
 	}
 	
 	public void setLoginViewVisibility(boolean b) {
-		EmailTextfield.setText("");
-		PasswordTextfield.setText("");
-		LoginViewPanel.setVisible(b);
-		InfoPanel.setVisible(b);
-		LoginBtn.setVisible(b);
+		frame.getContentPane().removeAll();
+
+		if (b) {
+			EmailTextfield.setText("");
+			PasswordTextfield.setText("");
+			LoginViewPanel.setVisible(true);
+			frame.getContentPane().add(LoginViewPanel);
+			frame.revalidate();
+			frame.repaint();
+		} else {
+			LoginViewPanel.setVisible(false);
+		}
 	}
 	
 	public static JFrame getFrame() {
 		return frame;
 	}
-	
-	
 }

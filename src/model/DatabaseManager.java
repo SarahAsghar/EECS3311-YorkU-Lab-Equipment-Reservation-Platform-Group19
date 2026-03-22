@@ -80,7 +80,7 @@ public class DatabaseManager {
 	
 	public ArrayList<Equipment> loadEquipment(){
 		ArrayList<Equipment> e = new ArrayList<Equipment>();
-		return e;
+		return equipments;
 	}
 	
 	public void saveEquipment(ArrayList<Equipment> e) {
@@ -136,17 +136,17 @@ public class DatabaseManager {
 
 	public boolean deleteReservation(String reservationId) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean updateReservation(Reservation r) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean saveReservation(Reservation newReservation) {
-		// TODO Auto-generated method stub
-		return false;
+		reservations.add(newReservation);
+		return true;
 	}
 	
 }

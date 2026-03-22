@@ -16,6 +16,8 @@ public class Reservation {
 	private LocalDateTime endTime;
 	private LocalDateTime actualArrivalTime;
 	private ReservationState currentState;
+	private boolean depositPaid;
+	private double price;
 	
 	public Reservation(String id, String equipID, LocalDateTime start, LocalDateTime end, ReservationState state) {
 		this.reservationId = id;
@@ -23,6 +25,7 @@ public class Reservation {
 		this.endTime = end;
 		this.currentState = state;
 		EquipmentID = equipID;
+		depositPaid = false;
 	}
 	
 	public void setState(ReservationState state) {
@@ -96,6 +99,21 @@ public class Reservation {
 
 	public void setEndTime(LocalDateTime newEndTime) {
 		endTime = newEndTime;
+	}
+
+	public void setDepositPaid(boolean b) {
+		depositPaid = b;
+		
+	}
+
+	public void setDepositAmount(double amount) {
+		price = amount;
+		
+	}
+
+	public void setUserID(String email) {
+		userId = email;
+		
 	}
 	
 

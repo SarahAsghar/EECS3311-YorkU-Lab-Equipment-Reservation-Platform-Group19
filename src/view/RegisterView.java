@@ -28,13 +28,13 @@ public class RegisterView {
 	private static RegisterView instance;
 	private JTextField NameTextfield;
 	private JTextField IDNumberTextfield;
-	
+	private JFrame frame;
 	
 	private RegisterView(JFrame frame) {
+		this.frame = frame;
 		RegisterViewPanel = new JPanel();
 		RegisterViewPanel.setBounds(0, 0, 800, 600);
 		RegisterViewPanel.setLayout(null);
-		frame.getContentPane().add(RegisterViewPanel);
 		
 		JPanel TitlePanel = new JPanel();
 		TitlePanel.setBorder(new LineBorder(new Color(0, 0, 0), 3, true));
@@ -90,7 +90,7 @@ public class RegisterView {
 		passwordTextfield.setBounds(144, 118, 431, 30);
 		infoPanel.add(passwordTextfield);
 		
-		JLabel passwordReqsLabel = new JLabel("Password must contain at least of of each: uppercase, lowercase, numbers, and symbols\n");
+		JLabel passwordReqsLabel = new JLabel("Password must contain at least one of each: uppercase, lowercase, numbers, and symbols");
 		passwordReqsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		passwordReqsLabel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		passwordReqsLabel.setBounds(18, 144, 547, 30);
@@ -105,8 +105,6 @@ public class RegisterView {
 		usertypeComboBox.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		usertypeComboBox.setBounds(154, 173, 267, 43);
 		infoPanel.add(usertypeComboBox);
-		UserType type = (UserType) usertypeComboBox.getSelectedItem();
-		
 		
 		JLabel NameLabel = new JLabel("Name:");
 		NameLabel.setFont(new Font("Times New Roman", Font.BOLD, 25));
@@ -119,7 +117,7 @@ public class RegisterView {
 		NameTextfield.setBounds(134, 23, 431, 30);
 		infoPanel.add(NameTextfield);
 		
-		JLabel idNumber = new JLabel("ID/Certifcation Number");
+		JLabel idNumber = new JLabel("ID/Certification Number");
 		idNumber.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		idNumber.setBounds(18, 216, 277, 30);
 		infoPanel.add(idNumber);
@@ -134,7 +132,6 @@ public class RegisterView {
 		registerBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		registerBtn.setBounds(217, 258, 147, 38);
 		registerBtn.addActionListener(new ActionListener() {
-			
 			public void actionPerformed(ActionEvent e) {
 				String name = NameTextfield.getText();
 				String email = emailTextfield.getText();
@@ -143,18 +140,14 @@ public class RegisterView {
 				
 				if(name == null || email == null || password == null || IDNum == null ||
 						name.equals("") || email.equals("") || password.equals("") || IDNum.equals("")) {
-					System.out.println(name);
-					System.out.println(email);
-					System.out.println(password);
-					System.out.println(IDNum);
 					JOptionPane.showMessageDialog(RegisterViewPanel,
 		                    "Enter Name, Email, IDNum, and Password",
 		                    "Error",
 		                    JOptionPane.INFORMATION_MESSAGE);
-				
 				}
 				else {
-					String s = UserController.getInstance().registerUser(email, password, (UserType) usertypeComboBox.getSelectedItem(), IDNum, name);
+					String s = UserController.getInstance().registerUser(email, password, 
+							(UserType) usertypeComboBox.getSelectedItem(), IDNum, name);
 					
 					if(s.equals("User successfully created!")) {
 						JOptionPane.showMessageDialog(RegisterViewPanel,
@@ -171,8 +164,7 @@ public class RegisterView {
 			                    JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
-				
-				}
+			}
 		});
 		infoPanel.add(registerBtn);
 		
@@ -198,9 +190,6 @@ public class RegisterView {
 		loginBtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		loginBtn.setBounds(238, 13, 117, 38);
 		goToLoginPanel.add(loginBtn);
-		
-		frame.getContentPane().setVisible(true);
-
 	}
 	
 	public static synchronized RegisterView getInstance(JFrame f) {
@@ -211,11 +200,19 @@ public class RegisterView {
 	}
 	
 	public void setRegisterViewVisibility(boolean b) {
-		emailTextfield.setText("");
-		passwordTextfield.setText("");
-		NameTextfield.setText("");
-		IDNumberTextfield.setText("");
-		RegisterViewPanel.setVisible(b);
-		
+		if (b) {
+			emailTextfield.setText("");
+			passwordTextfield.setText("");
+			NameTextfield.setText("");
+			IDNumberTextfield.setText("");
+			frame.getContentPane().removeAll();
+			frame.getContentPane().add(RegisterViewPanel);
+			RegisterViewPanel.setVisible(true);
+			frame.revalidate();
+			frame.repaint();
+		} else {
+			frame.getContentPane().removeAll();
+			RegisterViewPanel.setVisible(false);
+		}
 	}
 }

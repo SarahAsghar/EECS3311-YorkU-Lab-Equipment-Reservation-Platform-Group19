@@ -2,14 +2,11 @@ package view;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -23,14 +20,13 @@ import javax.swing.JComboBox;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import controller.EquipmentController;
 import controller.ReservationController;
 import controller.UserController;
 import model.Equipment.Equipment;
 import model.Equipment.EquipmentStatus;
+import model.Reservation.PendingState;
 import model.Reservation.Reservation;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -59,23 +55,28 @@ public class ReservationView {
 	private JButton paymentBtn;
 	private JPanel formPanel;
 	private Reservation selectedReservation;
+	AdminView adminInstance;
 
 	public ReservationView(ArrayList<Equipment> equipments, AdminView instance) {
 		this.equipmentList = equipments;
 		this.selectedReservation = null;
+		this.adminInstance = instance;
 
 		currentUserEmail = UserController.getLoggedInUser().getEmail();
 
+		// Create the main panel
 		ReservationViewPanel = new JPanel();
 		ReservationViewPanel.setBounds(0, 0, 800, 600);
 		ReservationViewPanel.setLayout(null);
-		frame.getContentPane().add(ReservationViewPanel);
+		ReservationViewPanel.setBackground(new Color(239, 239, 239));
 
+		// ALL EQUIPMENT label
 		JLabel allEquipmentLabel = new JLabel("ALL EQUIPMENT");
 		allEquipmentLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
 		allEquipmentLabel.setBounds(37, 6, 400, 34);
 		ReservationViewPanel.add(allEquipmentLabel);
 
+		// Table panel
 		JPanel tablePanel = new JPanel();
 		tablePanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		tablePanel.setBackground(new Color(255, 255, 255));
@@ -104,6 +105,7 @@ public class ReservationView {
 
 		addEquipment(equipments, model);
 
+		// Table click listener
 		Table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -123,18 +125,20 @@ public class ReservationView {
 			}
 		});
 
+		// Form panel
 		formPanel = new JPanel();
 		formPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		formPanel.setBackground(new Color(255, 255, 255));
 		formPanel.setBounds(437, 50, 280, 477);
-		ReservationViewPanel.add(formPanel);
 		formPanel.setLayout(null);
+		ReservationViewPanel.add(formPanel);
 
 		formTitle = new JLabel("Reserve Equipment");
 		formTitle.setBounds(20, 10, 200, 30);
 		formTitle.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		formPanel.add(formTitle);
 
+		// Email field
 		JLabel emailLabel = new JLabel("Email:");
 		emailLabel.setBounds(20, 50, 80, 25);
 		emailLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
@@ -146,6 +150,7 @@ public class ReservationView {
 		emailField.setEditable(false);
 		formPanel.add(emailField);
 
+		// Equipment ID field
 		JLabel equipmentIdLabel = new JLabel("Equipment ID:");
 		equipmentIdLabel.setBounds(20, 85, 100, 25);
 		equipmentIdLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
@@ -157,8 +162,9 @@ public class ReservationView {
 		equipmentIdField.setEditable(false);
 		formPanel.add(equipmentIdField);
 
-		JLabel startLabel = new JLabel("Start Time:");
-		startLabel.setBounds(20, 122, 80, 25);
+		// Start Time section
+		JLabel startLabel = new JLabel("Start Time: (YEAR MONTH DAY HOUR)");
+		startLabel.setBounds(20, 122, 80, 50);
 		startLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		formPanel.add(startLabel);
 
@@ -178,8 +184,9 @@ public class ReservationView {
 		startHourCombo.setBounds(140, 190, 117, 25);
 		formPanel.add(startHourCombo);
 
-		JLabel endLabel = new JLabel("End Time:");
-		endLabel.setBounds(20, 235, 80, 25);
+		// End Time section
+		JLabel endLabel = new JLabel("End Time:(YEAR MONTH DAY HOUR)");
+		endLabel.setBounds(20, 235, 80, 50);
 		endLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		formPanel.add(endLabel);
 
@@ -199,6 +206,7 @@ public class ReservationView {
 		endHourCombo.setBounds(140, 305, 117, 25);
 		formPanel.add(endHourCombo);
 
+		// Hours display
 		JLabel hoursLabel = new JLabel("Number of Hours:");
 		hoursLabel.setBounds(20, 360, 120, 25);
 		hoursLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
@@ -211,41 +219,75 @@ public class ReservationView {
 		hoursValueLabel.setBorder(new LineBorder(new Color(200, 200, 200), 1));
 		formPanel.add(hoursValueLabel);
 		
+		// Payment button
 		paymentBtn = new JButton("Go to Payment");
 		paymentBtn.setBounds(70, 410, 130, 35);
 		paymentBtn.setFont(new Font("Times New Roman", Font.BOLD, 18));
 		paymentBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ReservationView ins = getInstance();
-				Reservation r = ReservationController.getInstance().createReservation(selectedReservation);
-				PaymentView v = new PaymentView(ins, r );
-			}
-
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        if (!validateReservation() || selectedEquipment == null) {
+		            return;
+		        }
+		        
+		        Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, 
+		                startDayCombo, startHourCombo);
+		        Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, 
+		                endDayCombo, endHourCombo);
+		        
+		        LocalDateTime newStartTime = LocalDateTime.ofInstant(startDate.toInstant(), 
+		                ZoneId.systemDefault());
+		        LocalDateTime newEndTime = LocalDateTime.ofInstant(endDate.toInstant(), 
+		                ZoneId.systemDefault());
+		        
+		        String reservationId = selectedEquipment.getEquipmentId() + "_" + 
+		                newStartTime.toString().replace(":", "-").replace("T", "_");
+		        
+		        Reservation newReservation = new Reservation(
+		            reservationId,
+		            selectedEquipment.getEquipmentId(),
+		            newStartTime,
+		            newEndTime,
+		            new PendingState()
+		        );
+		        newReservation.setUserID(UserController.getLoggedInUser().getEmail());
+		        
+		        Reservation createdReservation = ReservationController.getInstance()
+		                .createReservation(newReservation);
+		        
+		        if (createdReservation != null) {
+		            setReservationViewVisibility(false);
+		            PaymentView v = new PaymentView(ReservationView.this, createdReservation);
+		            v.setPaymentViewVisibility(true);
+		        } else {
+		            JOptionPane.showMessageDialog(ReservationViewPanel,
+		                "Failed to create reservation. Time slot may be taken.",
+		                "Error",
+		                JOptionPane.ERROR_MESSAGE);
+		        }
+		    }
 		});
 		formPanel.add(paymentBtn);
 
 		addTimeListeners();
 
+		// In ReservationView.java, update the back button and payment success to refresh the admin view:
 		JButton backBtn = new JButton("Back");
 		backBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		backBtn.setBounds(666, 536, 117, 38);
 		backBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setReservationViewVisibility(false);
-				instance.setAdminViewVisibility(true);
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        setReservationViewVisibility(false);
+		        if (adminInstance != null) {
+		            adminInstance.refreshRegularView(); // Refresh the reservations
+		            adminInstance.setAdminViewVisibility(true);
+		        }
+		    }
 		});
 		ReservationViewPanel.add(backBtn);
 
 		setDefaultDates();
-		ReservationViewPanel.repaint();
-		ReservationViewPanel.revalidate();
-	}
-	
-	private ReservationView getInstance() {
-		return this;
 	}
 
 	public ReservationView(Reservation selectedReservation, AdminView instance) {
@@ -294,10 +336,8 @@ public class ReservationView {
 
 	private JComboBox<String> createYearCombo() {
 		JComboBox<String> combo = new JComboBox<>();
-		Date now = new Date();
 		Calendar cal = Calendar.getInstance();
 		int currentYear = cal.get(Calendar.YEAR);
-
 		for (int i = currentYear; i <= currentYear + 1; i++) {
 			combo.addItem(String.valueOf(i));
 		}
@@ -347,20 +387,22 @@ public class ReservationView {
 	}
 
 	private void calculateHours() {
-	    try {
-	        Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, startDayCombo, startHourCombo);
-	        Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, endDayCombo, endHourCombo);
-	        
-	        if (startDate != null && endDate != null && endDate.after(startDate)) {
-	            long diffInMillis = endDate.getTime() - startDate.getTime();
-	            double hours = diffInMillis / (1000.0 * 60 * 60);
-	            hoursValueLabel.setText(String.format("%.2f", hours));
-	        } else {
-	            hoursValueLabel.setText("0.00");
-	        }
-	    } catch (Exception e) {
-	        hoursValueLabel.setText("0.00");
-	    }
+		try {
+			Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, 
+					startDayCombo, startHourCombo);
+			Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, 
+					endDayCombo, endHourCombo);
+			
+			if (startDate != null && endDate != null && endDate.after(startDate)) {
+				long diffInMillis = endDate.getTime() - startDate.getTime();
+				double hours = diffInMillis / (1000.0 * 60 * 60);
+				hoursValueLabel.setText(String.format("%.2f", hours));
+			} else {
+				hoursValueLabel.setText("0.00");
+			}
+		} catch (Exception e) {
+			hoursValueLabel.setText("0.00");
+		}
 	}
 
 	private Date getDateFromComponents(JComboBox<String> yearCombo, JComboBox<String> monthCombo, 
@@ -386,7 +428,6 @@ public class ReservationView {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(now);
 
-		int currentHour = cal.get(Calendar.HOUR_OF_DAY);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		if (cal.getTime().before(now)) {
@@ -411,13 +452,11 @@ public class ReservationView {
 		LocalDateTime startTime = reservation.getStartTime();
 		LocalDateTime endTime = reservation.getEndTime();
 		
-		// Set start time
 		startYearCombo.setSelectedItem(String.valueOf(startTime.getYear()));
 		startMonthCombo.setSelectedItem(String.format("%02d", startTime.getMonthValue()));
 		startDayCombo.setSelectedItem(String.format("%02d", startTime.getDayOfMonth()));
 		startHourCombo.setSelectedItem(String.format("%02d:00", startTime.getHour()));
 		
-		// Set end time
 		endYearCombo.setSelectedItem(String.valueOf(endTime.getYear()));
 		endMonthCombo.setSelectedItem(String.format("%02d", endTime.getMonthValue()));
 		endDayCombo.setSelectedItem(String.format("%02d", endTime.getDayOfMonth()));
@@ -427,12 +466,10 @@ public class ReservationView {
 	}
 	
 	private void replaceButtonsForModification(Reservation selectedReservation, AdminView instance) {
-		// Remove the existing payment button
 		if (paymentBtn != null) {
 			formPanel.remove(paymentBtn);
 		}
 		
-		// Create Update button
 		JButton updateBtn = new JButton("Update Reservation");
 		updateBtn.setBounds(70, 410, 130, 35);
 		updateBtn.setFont(new Font("Times New Roman", Font.BOLD, 12));
@@ -444,7 +481,6 @@ public class ReservationView {
 		});
 		formPanel.add(updateBtn);
 		
-		// Create Cancel button
 		JButton cancelBtn = new JButton("Cancel Reservation");
 		cancelBtn.setBounds(70, 450, 130, 35);
 		cancelBtn.setFont(new Font("Times New Roman", Font.BOLD, 12));
@@ -457,7 +493,6 @@ public class ReservationView {
 		});
 		formPanel.add(cancelBtn);
 		
-		// Refresh the form panel
 		formPanel.revalidate();
 		formPanel.repaint();
 	}
@@ -467,21 +502,19 @@ public class ReservationView {
 			return;
 		}
 		
-		Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, startDayCombo, startHourCombo);
-		Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, endDayCombo, endHourCombo);
-		double hours = Double.parseDouble(hoursValueLabel.getText());
+		Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, 
+				startDayCombo, startHourCombo);
+		Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, 
+				endDayCombo, endHourCombo);
 		
-		LocalDateTime newStartTime = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
-		LocalDateTime newEndTime = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
+		LocalDateTime newStartTime = LocalDateTime.ofInstant(startDate.toInstant(), 
+				ZoneId.systemDefault());
+		LocalDateTime newEndTime = LocalDateTime.ofInstant(endDate.toInstant(), 
+				ZoneId.systemDefault());
 		
 		int confirm = JOptionPane.showConfirmDialog(ReservationViewPanel,
 			"Are you sure you want to UPDATE this reservation?\n\n" +
-			"Equipment: " + selectedEquipment.getName() + "\n" +
-			"Original Start: " + oldReservation.getStartTime() + "\n" +
-			"Original End: " + oldReservation.getEndTime() + "\n\n" +
-			"New Start: " + newStartTime + "\n" +
-			"New End: " + newEndTime + "\n" +
-			"Duration: " + hours + " hours",
+			"Equipment: " + selectedEquipment.getName(),
 			"Confirm Update",
 			JOptionPane.YES_NO_OPTION,
 			JOptionPane.QUESTION_MESSAGE);
@@ -503,7 +536,7 @@ public class ReservationView {
 				instance.setAdminViewVisibility(true);
 			} else {
 				JOptionPane.showMessageDialog(ReservationViewPanel,
-					"Failed to update reservation. The equipment may not be available at the selected times.",
+					"Failed to update reservation.",
 					"Error",
 					JOptionPane.ERROR_MESSAGE);
 			}
@@ -514,16 +547,14 @@ public class ReservationView {
 		int confirm = JOptionPane.showConfirmDialog(ReservationViewPanel,
 			"Are you sure you want to CANCEL this reservation?\n\n" +
 			"Reservation ID: " + reservation.getReservationId() + "\n" +
-			"Equipment: " + reservation.getEquipmentID() + "\n" +
-			"Start Time: " + reservation.getStartTime() + "\n" +
-			"End Time: " + reservation.getEndTime() + "\n\n" +
 			"This action cannot be undone!",
 			"Confirm Cancellation",
 			JOptionPane.YES_NO_OPTION,
 			JOptionPane.WARNING_MESSAGE);
 		
 		if (confirm == JOptionPane.YES_OPTION) {
-			boolean success = ReservationController.getInstance().cancelReservation(reservation.getReservationId());
+			boolean success = ReservationController.getInstance()
+					.cancelReservation(reservation.getReservationId());
 			
 			if (success) {
 				JOptionPane.showMessageDialog(ReservationViewPanel,
@@ -534,7 +565,7 @@ public class ReservationView {
 				instance.setAdminViewVisibility(true);
 			} else {
 				JOptionPane.showMessageDialog(ReservationViewPanel,
-					"Failed to cancel reservation. Please try again.",
+					"Failed to cancel reservation.",
 					"Error",
 					JOptionPane.ERROR_MESSAGE);
 			}
@@ -550,8 +581,10 @@ public class ReservationView {
 			return false;
 		}
 
-		Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, startDayCombo, startHourCombo);
-		Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, endDayCombo, endHourCombo);
+		Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, 
+				startDayCombo, startHourCombo);
+		Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, 
+				endDayCombo, endHourCombo);
 		Date now = new Date();
 
 		if (startDate.before(now)) {
@@ -573,7 +606,8 @@ public class ReservationView {
 		Calendar threeMonthsLater = Calendar.getInstance();
 		threeMonthsLater.add(Calendar.MONTH, 3);
 
-		if (startDate.after(threeMonthsLater.getTime()) || endDate.after(threeMonthsLater.getTime())) {
+		if (startDate.after(threeMonthsLater.getTime()) || 
+				endDate.after(threeMonthsLater.getTime())) {
 			JOptionPane.showMessageDialog(ReservationViewPanel,
 					"Reservation cannot be more than 3 months in advance.",
 					"Error",
@@ -583,30 +617,16 @@ public class ReservationView {
 
 		return true;
 	}
-	
-	private void processReservation() {
-		if (!validateReservation()) {
-			return;
-		}
-		
-		Date startDate = getDateFromComponents(startYearCombo, startMonthCombo, startDayCombo, startHourCombo);
-		Date endDate = getDateFromComponents(endYearCombo, endMonthCombo, endDayCombo, endHourCombo);
-		double hours = Double.parseDouble(hoursValueLabel.getText());
-		
-		JOptionPane.showMessageDialog(ReservationViewPanel,
-			"Proceeding to payment for reservation of " + selectedEquipment.getName() +
-			"\nDuration: " + hours + " hours",
-			"Payment",
-			JOptionPane.INFORMATION_MESSAGE);
-	}
 
 	public void setReservationViewVisibility(boolean b) {
-		ReservationViewPanel.setVisible(b);
-		if (b) {
-			frame.getContentPane().removeAll();
-			frame.getContentPane().add(ReservationViewPanel);
-			frame.revalidate();
-			frame.repaint();
-		}
+	    if (b) {
+	        frame.getContentPane().removeAll();
+	        frame.getContentPane().add(ReservationViewPanel);
+	        frame.revalidate();
+	        frame.repaint();
+	        ReservationViewPanel.setVisible(true);
+	    } else {
+	        ReservationViewPanel.setVisible(false);
+	    }
 	}
 }
