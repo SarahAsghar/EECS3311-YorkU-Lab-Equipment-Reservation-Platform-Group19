@@ -133,5 +133,20 @@ public class DatabaseManager {
 		NumLabManagerAccountCreated = num;
 		
 	}
+
+	public boolean deleteReservation(String reservationId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean updateReservation(Reservation r) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean saveReservation(Reservation newReservation) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }

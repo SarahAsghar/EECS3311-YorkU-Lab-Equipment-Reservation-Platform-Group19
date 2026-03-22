@@ -1,5 +1,5 @@
 package model.Reservation;
 
-public class ConfirmedState {
+public class ConfirmedState implements ReservationState {
 
 }

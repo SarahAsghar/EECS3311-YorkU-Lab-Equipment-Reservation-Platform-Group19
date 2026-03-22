@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import model.User.User;
+
 public class Reservation {
 
 	private String userId;
@@ -15,12 +17,12 @@ public class Reservation {
 	private LocalDateTime actualArrivalTime;
 	private ReservationState currentState;
 	
-	public Reservation(String id, LocalDateTime start, LocalDateTime end, LocalDateTime arrival, ReservationState state) {
+	public Reservation(String id, String equipID, LocalDateTime start, LocalDateTime end, ReservationState state) {
 		this.reservationId = id;
 		this.startTime = start;
 		this.endTime = end;
-		this.actualArrivalTime = arrival;
 		this.currentState = state;
+		EquipmentID = equipID;
 	}
 	
 	public void setState(ReservationState state) {
@@ -67,6 +69,33 @@ public class Reservation {
 	public ReservationState getState() {
 		// TODO Auto-generated method stub
 		return currentState;
+	}
+
+	public double calculateHours() {
+	    if (startTime != null && endTime != null) {
+	        // Calculate the duration in hours
+	        long minutes = java.time.Duration.between(startTime, endTime).toMinutes();
+	        double hours = minutes / 60.0;
+	        // Round to 2 decimal places
+	        return Math.round(hours * 100.0) / 100.0;
+	    }
+	    return 0;
+	}
+
+	public double calculateTotalCost(User user) {
+	    double hours = calculateHours();
+	    if (user != null && user.getUserType() != null) {
+	        return hours * user.getUserType().getHourlyFee();
+	    }
+	    return 0;
+	}
+
+	public void setStartTime(LocalDateTime newStartTime) {
+		startTime = newStartTime;
+	}
+
+	public void setEndTime(LocalDateTime newEndTime) {
+		endTime = newEndTime;
 	}
 	
 

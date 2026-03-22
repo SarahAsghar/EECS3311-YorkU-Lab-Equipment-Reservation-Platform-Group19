@@ -191,4 +191,9 @@ public class UserController {
 		return LoggedInUser;
 	}
 
+	public static void setLoggedInUser(User u) {
+		LoggedInUser = u;
+		
+	}
+
 }

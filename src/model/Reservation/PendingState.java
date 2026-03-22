@@ -1,5 +1,5 @@
 package model.Reservation;
 
-public class PendingState {
+public class PendingState implements ReservationState {
 
 }

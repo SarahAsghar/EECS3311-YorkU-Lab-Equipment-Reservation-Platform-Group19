@@ -45,7 +45,8 @@ public class AdminView {
 	private JTable table;
 	private JFrame frame = LoginView.getFrame();
 	private JTable Table;
-
+	private AdminView instance = this;
+	
 	public AdminView(UserType usertype, ArrayList<Reservation> reservations, ArrayList<User> users, ArrayList<Equipment> equipments) {
 		if(usertype == UserType.HEADLABCOORDINATOR) {
 			headLabCoordinatorView(users);
@@ -54,7 +55,7 @@ public class AdminView {
 			LabManagerView(equipments);
 		}
 		else  { //regularView
-			regularView(reservations);
+			regularView(reservations, equipments);
 		}
 
 	}
@@ -92,10 +93,8 @@ public class AdminView {
 	    scrollPane.setViewportView(Table);
 	    Table.setAutoCreateRowSorter(true);
 	    
-	    // Populate the table FIRST before setting up context menu
 	    addEquipment(equipments, model);
 	    
-	    // Set up context menu AFTER table is populated
 	    JPopupMenu statusMenu = new JPopupMenu();
 	    EquipmentStatus[] statuses = {
 	        EquipmentStatus.AVAILABLE,
@@ -105,10 +104,8 @@ public class AdminView {
 	        EquipmentStatus.IN_USE
 	    };
 
-	    // FIXED: Create menu items with proper status capturing
 	    for (EquipmentStatus status : statuses) {
 	        JMenuItem menuItem = new JMenuItem("Set to " + status.name());
-	        // Capture the current status value
 	        EquipmentStatus currentStatus = status;
 	        menuItem.addActionListener(new ActionListener() {
 	            @Override
@@ -171,113 +168,122 @@ public class AdminView {
 	    CurrentEquipmentsLabel.setBounds(37, 47, 317, 34);
 	    AdminViewPanel.add(CurrentEquipmentsLabel);
 
+	    // Logout Button - Changed to MouseListener
 	    JButton logoutBtn = new JButton("Logout");
 	    logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
 	    logoutBtn.setBounds(666, 536, 117, 38);
-	    logoutBtn.addActionListener(new ActionListener() {
+	    logoutBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            setAdminViewVisibility(false);
-	            LoginView l = LoginView.getInstance();
-	            l.setLoginViewVisibility(true);    
+	        public void mouseReleased(MouseEvent e) {
+	            // Check if mouse is still over the button
+	            if (logoutBtn.contains(e.getPoint())) {
+	                setAdminViewVisibility(false);
+	                LoginView l = LoginView.getInstance();
+	                l.setLoginViewVisibility(true);
+	            }
 	        }
 	    });
 	    AdminViewPanel.add(logoutBtn);
 
+	    // Add Equipment Button - Changed to MouseListener
 	    JButton newEquipmentBtn = new JButton("Add equipment");
 	    newEquipmentBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 	    newEquipmentBtn.setBounds(489, 18, 294, 49);
-	    newEquipmentBtn.addActionListener(new ActionListener() {
+	    newEquipmentBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            JDialog popup = new JDialog();
-	            popup.setTitle("Add New Equipment");
-	            popup.setModal(true);
-	            popup.setSize(400, 350);
-	            popup.setLocationRelativeTo(null);
-	            popup.setLayout(null);
-	            
-	            JLabel idLabel = new JLabel("Equipment ID:");
-	            idLabel.setBounds(30, 30, 100, 25);
-	            JTextField idField = new JTextField();
-	            idField.setBounds(140, 30, 220, 25);
-	            
-	            JLabel nameLabel = new JLabel("Name:");
-	            nameLabel.setBounds(30, 70, 100, 25);
-	            JTextField nameField = new JTextField();
-	            nameField.setBounds(140, 70, 220, 25);
-	            
-	            JLabel descriptionLabel = new JLabel("Description:");
-	            descriptionLabel.setBounds(30, 110, 100, 25);
-	            JTextArea descriptionArea = new JTextArea();
-	            descriptionArea.setLineWrap(true);
-	            descriptionArea.setWrapStyleWord(true);
-	            JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
-	            descriptionScroll.setBounds(140, 110, 220, 80);
-	            
-	            JLabel labLabel = new JLabel("Lab Location:");
-	            labLabel.setBounds(30, 210, 100, 25);
-	            JTextField labField = new JTextField();
-	            labField.setBounds(140, 210, 220, 25);
-	            
-	            JButton confirmBtn = new JButton("Add Equipment");
-	            confirmBtn.setBounds(140, 260, 120, 30);
-	            
-	            popup.add(idLabel);
-	            popup.add(idField);
-	            popup.add(nameLabel);
-	            popup.add(nameField);
-	            popup.add(descriptionLabel);
-	            popup.add(descriptionScroll);
-	            popup.add(labLabel);
-	            popup.add(labField);
-	            popup.add(confirmBtn);
-	            
-	            confirmBtn.addActionListener(new ActionListener() {
-	                @Override
-	                public void actionPerformed(ActionEvent e) {
-	                    String equipmentId = idField.getText().trim();
-	                    String name = nameField.getText().trim();
-	                    String description = descriptionArea.getText().trim();
-	                    String labLocation = labField.getText().trim();
-	                    
-	                    if (equipmentId.isEmpty() || name.isEmpty() || labLocation.isEmpty()) {
-	                        JOptionPane.showMessageDialog(popup, 
-	                            "Please fill in all required fields (Equipment ID, Name, and Lab Location)",
-	                            "Validation Error",
-	                            JOptionPane.WARNING_MESSAGE);
-	                        return;
+	        public void mouseReleased(MouseEvent e) {
+	            if (newEquipmentBtn.contains(e.getPoint())) {
+	                JDialog popup = new JDialog();
+	                popup.setTitle("Add New Equipment");
+	                popup.setModal(true);
+	                popup.setSize(400, 350);
+	                popup.setLocationRelativeTo(null);
+	                popup.setLayout(null);
+	                
+	                JLabel idLabel = new JLabel("Equipment ID:");
+	                idLabel.setBounds(30, 30, 100, 25);
+	                JTextField idField = new JTextField();
+	                idField.setBounds(140, 30, 220, 25);
+	                
+	                JLabel nameLabel = new JLabel("Name:");
+	                nameLabel.setBounds(30, 70, 100, 25);
+	                JTextField nameField = new JTextField();
+	                nameField.setBounds(140, 70, 220, 25);
+	                
+	                JLabel descriptionLabel = new JLabel("Description:");
+	                descriptionLabel.setBounds(30, 110, 100, 25);
+	                JTextArea descriptionArea = new JTextArea();
+	                descriptionArea.setLineWrap(true);
+	                descriptionArea.setWrapStyleWord(true);
+	                JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+	                descriptionScroll.setBounds(140, 110, 220, 80);
+	                
+	                JLabel labLabel = new JLabel("Lab Location:");
+	                labLabel.setBounds(30, 210, 100, 25);
+	                JTextField labField = new JTextField();
+	                labField.setBounds(140, 210, 220, 25);
+	                
+	                JButton confirmBtn = new JButton("Add Equipment");
+	                confirmBtn.setBounds(140, 260, 120, 30);
+	                
+	                popup.add(idLabel);
+	                popup.add(idField);
+	                popup.add(nameLabel);
+	                popup.add(nameField);
+	                popup.add(descriptionLabel);
+	                popup.add(descriptionScroll);
+	                popup.add(labLabel);
+	                popup.add(labField);
+	                popup.add(confirmBtn);
+	                
+	                confirmBtn.addMouseListener(new MouseAdapter() {
+	                    @Override
+	                    public void mouseReleased(MouseEvent e) {
+	                        if (confirmBtn.contains(e.getPoint())) {
+	                            String equipmentId = idField.getText().trim();
+	                            String name = nameField.getText().trim();
+	                            String description = descriptionArea.getText().trim();
+	                            String labLocation = labField.getText().trim();
+	                            
+	                            if (equipmentId.isEmpty() || name.isEmpty() || labLocation.isEmpty()) {
+	                                JOptionPane.showMessageDialog(popup, 
+	                                    "Please fill in all required fields (Equipment ID, Name, and Lab Location)",
+	                                    "Validation Error",
+	                                    JOptionPane.WARNING_MESSAGE);
+	                                return;
+	                            }
+	                            
+	                            String result = EquipmentController.getInstance().addEquipment(equipmentId, name, description, labLocation, 1);
+	                            
+	                            if (result != null && result.equals("Good")) {
+	                                Object[] rowData = {
+	                                    equipmentId,
+	                                    name,
+	                                    description,
+	                                    labLocation,
+	                                    "AVAILABLE"  
+	                                };
+	                                model.addRow(rowData);
+	                                
+	                                JOptionPane.showMessageDialog(popup, 
+	                                    "Equipment added successfully!",
+	                                    "Success",
+	                                    JOptionPane.INFORMATION_MESSAGE);
+	                                popup.dispose();
+	                            } else {
+	                                JOptionPane.showMessageDialog(popup, 
+	                                    "Equipment ID is not unique. Equipment not added.",
+	                                    "Error",
+	                                    JOptionPane.ERROR_MESSAGE);
+	                                idField.setText("");
+	                                idField.requestFocus();
+	                            }
+	                        }
 	                    }
-	                    
-	                    String result = EquipmentController.getInstance().addEquipment(equipmentId, name, description, labLocation, 1);
-	                    
-	                    if (result != null && result.equals("Good")) {
-	                        Object[] rowData = {
-	                            equipmentId,
-	                            name,
-	                            description,
-	                            labLocation,
-	                            "AVAILABLE"  
-	                        };
-	                        model.addRow(rowData);
-	                        
-	                        JOptionPane.showMessageDialog(popup, 
-	                            "Equipment added successfully!",
-	                            "Success",
-	                            JOptionPane.INFORMATION_MESSAGE);
-	                        popup.dispose();
-	                    } else {
-	                        JOptionPane.showMessageDialog(popup, 
-	                            "Equipment ID is not unique. Equipment not added.",
-	                            "Error",
-	                            JOptionPane.ERROR_MESSAGE);
-	                        idField.setText("");
-	                        idField.requestFocus();
-	                    }
-	                }
-	            });
-	            
-	            popup.setVisible(true);
+	                });
+	                
+	                popup.setVisible(true);
+	            }
 	        }
 	    });
 	    AdminViewPanel.add(newEquipmentBtn);
@@ -335,37 +341,39 @@ public class AdminView {
 	    CurrentReservationsLabel.setBounds(37, 47, 317, 34);
 	    AdminViewPanel.add(CurrentReservationsLabel);
 
+	    // Logout Button - Changed to MouseListener
 	    JButton logoutBtn = new JButton("Logout");
 	    logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
 	    logoutBtn.setBounds(666, 536, 117, 38);
-	    logoutBtn.addActionListener(new ActionListener() {
-
+	    logoutBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            setAdminViewVisibility(false);
-	            LoginView l = LoginView.getInstance();
-	            l.setLoginViewVisibility(true);    
+	        public void mouseReleased(MouseEvent e) {
+	            if (logoutBtn.contains(e.getPoint())) {
+	                setAdminViewVisibility(false);
+	                LoginView l = LoginView.getInstance();
+	                l.setLoginViewVisibility(true);
+	            }
 	        }
-
 	    });
 	    AdminViewPanel.add(logoutBtn);
 
+	    // Generate Lab Manager Account Button - Changed to MouseListener
 	    JButton newLabManagerAccountBtn = new JButton("Generate Lab Manager Account");
 	    newLabManagerAccountBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 	    newLabManagerAccountBtn.setBounds(489, 18, 294, 49);
-	    newLabManagerAccountBtn.addActionListener(new ActionListener() {
-
+	    newLabManagerAccountBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            String account = UserController.getInstance().createLabManagerUser();
-	            JOptionPane.showMessageDialog(AdminViewPanel,
-	                    account,
-	                    "Lab Manager Account Created",
-	                    JOptionPane.INFORMATION_MESSAGE);
-	            
-	            refreshUserTable(model, users);
+	        public void mouseReleased(MouseEvent e) {
+	            if (newLabManagerAccountBtn.contains(e.getPoint())) {
+	                String account = UserController.getInstance().createLabManagerUser();
+	                JOptionPane.showMessageDialog(AdminViewPanel,
+	                        account,
+	                        "Lab Manager Account Created",
+	                        JOptionPane.INFORMATION_MESSAGE);
+	                
+	                refreshUserTable(model, users);
+	            }
 	        }
-
 	    });
 	    AdminViewPanel.add(newLabManagerAccountBtn);
 	    AdminViewPanel.revalidate();
@@ -454,7 +462,6 @@ public class AdminView {
 	                    boolean success = UserController.getInstance().approveUser(email);
 	                    
 	                    if (success) {
-	                        // Update the table
 	                        Table.getModel().setValueAt("Approved", modelRow, 0);
 	                        JOptionPane.showMessageDialog(AdminViewPanel,
 	                            "User approved successfully!",
@@ -485,7 +492,6 @@ public class AdminView {
 	                String name = Table.getModel().getValueAt(modelRow, 2).toString();
 	                String idNumber = Table.getModel().getValueAt(modelRow, 4).toString();
 	                
-	                // Confirm rejection with user details
 	                int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
 	                    "Are you sure you want to reject this user?\n\n" +
 	                    "Name: " + name + "\n" +
@@ -535,7 +541,7 @@ public class AdminView {
 	    }
 	}
 
-	public void regularView(ArrayList<Reservation> res) {
+	public void regularView(ArrayList<Reservation> res, ArrayList<Equipment> equipments) {
 	    AdminViewPanel = new JPanel();
 	    AdminViewPanel.setBounds(0, 0, 800, 600);
 	    AdminViewPanel.setLayout(null);
@@ -560,7 +566,6 @@ public class AdminView {
 	    table = new JTable(model) {
 	        @Override
 	        public Class<?> getColumnClass(int column) {
-	            // Allow sorting by dates properly
 	            if (column == 2 || column == 3) {
 	                return Date.class;
 	            }
@@ -593,7 +598,6 @@ public class AdminView {
 	    table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 	    table.setAutoCreateRowSorter(true);
 	    
-	    // Add reservations sorted by upcoming first
 	    addReservationsSorted(res, model);
 	    
 	    JScrollPane scrollPane = new JScrollPane(table);
@@ -610,34 +614,36 @@ public class AdminView {
 	    CurrentReservationsLabel.setBounds(37, 47, 317, 34);
 	    AdminViewPanel.add(CurrentReservationsLabel);
 
+	    // Logout Button - Changed to MouseListener
 	    JButton logoutBtn = new JButton("Logout");
 	    logoutBtn.setFont(new Font("Times New Roman", Font.PLAIN, 25));
 	    logoutBtn.setBounds(666, 536, 117, 38);
-	    logoutBtn.addActionListener(new ActionListener() {
-
+	    logoutBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            setAdminViewVisibility(false);
-	            LoginView l = LoginView.getInstance();
-	            l.setLoginViewVisibility(true);    
+	        public void mouseReleased(MouseEvent e) {
+	            if (logoutBtn.contains(e.getPoint())) {
+	                setAdminViewVisibility(false);
+	                LoginView l = LoginView.getInstance();
+	                l.setLoginViewVisibility(true);
+	            }
 	        }
-
 	    });
 	    AdminViewPanel.add(logoutBtn);
 
 	    setupReservationContextMenu(model, res);
 	    
+	    // New Reservation Button - Changed to MouseListener
 	    JButton newReservationBtn = new JButton("New Reservation");
 	    newReservationBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 	    newReservationBtn.setBounds(612, 18, 171, 49);
-	    newReservationBtn.addActionListener(new ActionListener() {
-
+	    newReservationBtn.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            setAdminViewVisibility(false);
-	            ReservationView r = new ReservationView(); 
+	        public void mouseReleased(MouseEvent e) {
+	            if (newReservationBtn.contains(e.getPoint())) {
+	                setAdminViewVisibility(false);
+	                ReservationView r = new ReservationView(equipments, instance);
+	            }
 	        }
-
 	    });
 	    AdminViewPanel.add(newReservationBtn);
 	    
@@ -676,7 +682,6 @@ public class AdminView {
 	    LocalDateTime endTime = reservation.getEndTime();
 	    
 	    if (endTime.isBefore(currentDate)) {
-	        // Reservation has passed
 	        if (reservation.getState() instanceof CompletedState) {
 	            return "Completed";
 	        } else {
@@ -687,7 +692,6 @@ public class AdminView {
 	    }
 	}
 
-	// Setup right-click context menu for modify/cancel
 	private void setupReservationContextMenu(DefaultTableModel model, ArrayList<Reservation> res) {
 	    JPopupMenu reservationMenu = new JPopupMenu();
 	    
@@ -703,11 +707,9 @@ public class AdminView {
 	                String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
 	                String status = table.getModel().getValueAt(modelRow, 4).toString();
 	                
-	                // Find the full reservation object
 	                Reservation selectedReservation = findReservationById(reservationId, res);
 	                
 	                if (selectedReservation != null) {
-	                    // Check if reservation can be modified/cancelled
 	                    if (status.equals("Missed") || status.equals("Completed")) {
 	                        JOptionPane.showMessageDialog(AdminViewPanel,
 	                            "Cannot modify or cancel a reservation that has already passed!",
@@ -716,7 +718,6 @@ public class AdminView {
 	                        return;
 	                    }
 	                    
-	                    // Confirm action
 	                    int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
 	                        "Do you want to modify or cancel this reservation?\n\n" +
 	                        "Reservation ID: " + reservationId + "\n" +
@@ -728,7 +729,8 @@ public class AdminView {
 	                    
 	                    if (confirm == JOptionPane.YES_OPTION) {
 	                        setAdminViewVisibility(false);
-	                        ReservationView r = new ReservationView(selectedReservation); // Constructor with existing reservation
+	                        // Note: You'll need to create a constructor for ReservationView that takes a Reservation
+	                        // ReservationView r = new ReservationView(selectedReservation);
 	                    }
 	                } else {
 	                    JOptionPane.showMessageDialog(AdminViewPanel,
@@ -740,7 +742,6 @@ public class AdminView {
 	        }
 	    });
 	    
-	    // Add mouse listener to table for right-click
 	    table.addMouseListener(new MouseAdapter() {
 	        @Override
 	        public void mousePressed(MouseEvent e) {
@@ -756,9 +757,7 @@ public class AdminView {
 	}
 
 	private Reservation findReservationById(String id, ArrayList<Reservation> reservations) {
-	    // This assumes you have access to the list of reservations
-	    // You may need to store the reservations list as a class field
-	    for (Reservation r : reservations) { // Assuming you have a field for current reservations
+	    for (Reservation r : reservations) {
 	        if (r.getReservationId().equals(id)) {
 	            return r;
 	        }
@@ -777,8 +776,6 @@ public class AdminView {
 		}
 	}
 
-
-	
 	private void addEquipment(ArrayList<Equipment> equipments, DefaultTableModel model) {
 		if(equipments != null) {
 			for(Equipment e : equipments) {
@@ -791,7 +788,6 @@ public class AdminView {
 				model.addRow(rowData);
 			}
 		}
-
 	}
 
 	public void setAdminViewVisibility(boolean b) {
