@@ -55,38 +55,33 @@ public class AdminView {
 	private ArrayList<Equipment> currentEquipments;
 	private ArrayList<User> currentUsers;
 
-	public AdminView(UserType usertype, ArrayList<Reservation> reservations, 
+	public AdminView(UserType usertype, ArrayList<Reservation> reservations,
 			ArrayList<User> users, ArrayList<Equipment> equipments) {
 		this.currentUserType = usertype;
 		this.currentReservations = reservations;
 		this.currentUsers = users;
 		this.currentEquipments = equipments;
-		
-		if(usertype == UserType.HEADLABCOORDINATOR) {
+
+		if (usertype == UserType.HEADLABCOORDINATOR) {
 			headLabCoordinatorView(users);
-		}
-		else if (usertype == UserType.LABMANAGER) {
+		} else if (usertype == UserType.LABMANAGER) {
 			LabManagerView(equipments);
-		}
-		else {
+		} else {
 			regularView(reservations, equipments);
 		}
 	}
-	
-	// Method to refresh the regular view with updated reservations
+
 	public void refreshRegularView() {
 		if (currentUserType != UserType.HEADLABCOORDINATOR && currentUserType != UserType.LABMANAGER) {
-			// Refresh reservations from database
 			currentReservations = ReservationController.getInstance().getMyReservations();
-			// Update the table
 			refreshReservationTable();
 		}
 	}
-	
+
 	private void refreshReservationTable() {
 		if (table != null && table.getModel() instanceof DefaultTableModel) {
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			model.setRowCount(0); // Clear all rows
+			model.setRowCount(0);
 			addReservationsSorted(currentReservations, model);
 			table.revalidate();
 			table.repaint();
@@ -103,11 +98,11 @@ public class AdminView {
 		labManagerPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		labManagerPanel.setBackground(new Color(255, 255, 255));
 		labManagerPanel.setBounds(37, 82, 604, 492);
-		labManagerPanel.setLayout(null); 
+		labManagerPanel.setLayout(null);
 		AdminViewPanel.add(labManagerPanel);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(6, 6, 592, 480); 
+		scrollPane.setBounds(6, 6, 592, 480);
 		labManagerPanel.add(scrollPane);
 
 		String[] columnHeaders = {
@@ -148,9 +143,9 @@ public class AdminView {
 						Object idValue = Table.getModel().getValueAt(modelRow, 0);
 
 						if (idValue == null) {
-							JOptionPane.showMessageDialog(AdminViewPanel, 
-									"Error: Could not get equipment ID", 
-									"Error", 
+							JOptionPane.showMessageDialog(AdminViewPanel,
+									"Error: Could not get equipment ID",
+									"Error",
 									JOptionPane.ERROR_MESSAGE);
 							return;
 						}
@@ -160,14 +155,14 @@ public class AdminView {
 
 						if (success) {
 							Table.getModel().setValueAt(currentStatus.name(), modelRow, 4);
-							JOptionPane.showMessageDialog(AdminViewPanel, 
+							JOptionPane.showMessageDialog(AdminViewPanel,
 									"Equipment status updated to " + currentStatus.name(),
-									"Success", 
+									"Success",
 									JOptionPane.INFORMATION_MESSAGE);
 						} else {
-							JOptionPane.showMessageDialog(AdminViewPanel, 
-									"Failed to update equipment status", 
-									"Error", 
+							JOptionPane.showMessageDialog(AdminViewPanel,
+									"Failed to update equipment status",
+									"Error",
 									JOptionPane.ERROR_MESSAGE);
 						}
 					}
@@ -179,7 +174,18 @@ public class AdminView {
 		Table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
+				if (e.isPopupTrigger()) {
+					int row = Table.rowAtPoint(e.getPoint());
+					if (row >= 0) {
+						Table.setRowSelectionInterval(row, row);
+						statusMenu.show(Table, e.getX(), e.getY());
+					}
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
 					int row = Table.rowAtPoint(e.getPoint());
 					if (row >= 0) {
 						Table.setRowSelectionInterval(row, row);
@@ -270,7 +276,7 @@ public class AdminView {
 						String labLocation = labField.getText().trim();
 
 						if (equipmentId.isEmpty() || name.isEmpty() || labLocation.isEmpty()) {
-							JOptionPane.showMessageDialog(popup, 
+							JOptionPane.showMessageDialog(popup,
 									"Please fill in all required fields",
 									"Validation Error",
 									JOptionPane.WARNING_MESSAGE);
@@ -286,13 +292,13 @@ public class AdminView {
 							};
 							model.addRow(rowData);
 
-							JOptionPane.showMessageDialog(popup, 
+							JOptionPane.showMessageDialog(popup,
 									"Equipment added successfully!",
 									"Success",
 									JOptionPane.INFORMATION_MESSAGE);
 							popup.dispose();
 						} else {
-							JOptionPane.showMessageDialog(popup, 
+							JOptionPane.showMessageDialog(popup,
 									result,
 									"Error",
 									JOptionPane.ERROR_MESSAGE);
@@ -325,13 +331,13 @@ public class AdminView {
 		AdminViewPanel.add(panel);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(6, 6, 592, 480); 
+		scrollPane.setBounds(6, 6, 592, 480);
 		panel.add(scrollPane);
 
 		String[] columnHeaders = {
-				"Status",  
-				"Email", 
-				"Name", 
+				"Status",
+				"Email",
+				"Name",
 				"UserType",
 				"IdNumber"
 		};
@@ -507,9 +513,9 @@ public class AdminView {
 									"Name: " + name + "\n" +
 									"Email: " + email + "\n" +
 									"ID: " + idNumber,
-									"Confirm Rejection",
-									JOptionPane.YES_NO_OPTION,
-									JOptionPane.WARNING_MESSAGE);
+							"Confirm Rejection",
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.WARNING_MESSAGE);
 
 					if (confirm == JOptionPane.YES_OPTION) {
 						boolean success = UserController.getInstance().removeUser(email);
@@ -534,7 +540,18 @@ public class AdminView {
 		Table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
+				if (e.isPopupTrigger()) {
+					int row = Table.rowAtPoint(e.getPoint());
+					if (row >= 0) {
+						Table.setRowSelectionInterval(row, row);
+						userMenu.show(Table, e.getX(), e.getY());
+					}
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
 					int row = Table.rowAtPoint(e.getPoint());
 					if (row >= 0) {
 						Table.setRowSelectionInterval(row, row);
@@ -552,6 +569,8 @@ public class AdminView {
 	}
 
 	public void regularView(ArrayList<Reservation> res, ArrayList<Equipment> equipments) {
+		currentReservations = ReservationController.getInstance().getMyReservations();
+
 		AdminViewPanel = new JPanel();
 		AdminViewPanel.setBounds(0, 0, 800, 600);
 		AdminViewPanel.setLayout(null);
@@ -565,9 +584,9 @@ public class AdminView {
 		panel.setLayout(null);
 
 		String[] columnHeaders = {
-				"Reservation ID",  
-				"Equipment", 
-				"Start Time", 
+				"Reservation ID",
+				"Equipment",
+				"Start Time",
 				"End Time",
 				"Status"
 		};
@@ -577,7 +596,7 @@ public class AdminView {
 
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
 		table.setAutoCreateRowSorter(true);
-		addReservationsSorted(res, model);
+		addReservationsSorted(currentReservations, model);
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(0, 0, 604, 492);
@@ -606,8 +625,7 @@ public class AdminView {
 		});
 		AdminViewPanel.add(logoutBtn);
 
-		// Pass the table and model to setupReservationContextMenu
-		setupReservationContextMenu(table, model, res);
+		setupReservationContextMenu(table, model);
 
 		JButton newReservationBtn = new JButton("New Reservation");
 		newReservationBtn.setFont(new Font("Times New Roman", Font.PLAIN, 20));
@@ -626,18 +644,15 @@ public class AdminView {
 		AdminViewPanel.repaint();
 	}
 
-	private void setupReservationContextMenu(JTable table, DefaultTableModel model, ArrayList<Reservation> res) {
+	private void setupReservationContextMenu(JTable table, DefaultTableModel model) {
 		JPopupMenu reservationMenu = new JPopupMenu();
-		
-		// Cancel Reservation option
+
 		JMenuItem cancelItem = new JMenuItem("Cancel Reservation");
-		// Extend Reservation option
 		JMenuItem extendItem = new JMenuItem("Extend Reservation");
-		
+
 		reservationMenu.add(cancelItem);
 		reservationMenu.add(extendItem);
 
-		// Cancel Reservation Action
 		cancelItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -647,7 +662,7 @@ public class AdminView {
 					String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
 					String status = table.getModel().getValueAt(modelRow, 4).toString();
 
-					Reservation selectedReservation = findReservationById(reservationId, res);
+					Reservation selectedReservation = findReservationById(reservationId, currentReservations);
 
 					if (selectedReservation != null) {
 						if (status.equals("Missed") || status.equals("Completed")) {
@@ -672,18 +687,18 @@ public class AdminView {
 						if (confirm == JOptionPane.YES_OPTION) {
 							boolean success = ReservationController.getInstance()
 									.cancelReservation(reservationId);
-							
+
 							if (success) {
 								JOptionPane.showMessageDialog(AdminViewPanel,
-									"Reservation cancelled successfully!",
-									"Success",
-									JOptionPane.INFORMATION_MESSAGE);
+										"Reservation cancelled successfully!",
+										"Success",
+										JOptionPane.INFORMATION_MESSAGE);
 								refreshRegularView();
 							} else {
 								JOptionPane.showMessageDialog(AdminViewPanel,
-									"Failed to cancel reservation.",
-									"Error",
-									JOptionPane.ERROR_MESSAGE);
+										"Failed to cancel reservation.",
+										"Error",
+										JOptionPane.ERROR_MESSAGE);
 							}
 						}
 					}
@@ -691,7 +706,6 @@ public class AdminView {
 			}
 		});
 
-		// Extend Reservation Action
 		extendItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -701,7 +715,7 @@ public class AdminView {
 					String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
 					String status = table.getModel().getValueAt(modelRow, 4).toString();
 
-					Reservation selectedReservation = findReservationById(reservationId, res);
+					Reservation selectedReservation = findReservationById(reservationId, currentReservations);
 
 					if (selectedReservation != null) {
 						if (status.equals("Missed") || status.equals("Completed")) {
@@ -712,57 +726,80 @@ public class AdminView {
 							return;
 						}
 
-						// Create popup dialog for extension
 						JDialog extendDialog = new JDialog();
 						extendDialog.setTitle("Extend Reservation");
 						extendDialog.setModal(true);
-						extendDialog.setSize(450, 350);
+						extendDialog.setSize(540, 400);
 						extendDialog.setLocationRelativeTo(null);
 						extendDialog.setLayout(null);
 
 						JLabel infoLabel = new JLabel("Current End Time: " + selectedReservation.getEndTime());
 						infoLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-						infoLabel.setBounds(20, 20, 400, 25);
+						infoLabel.setBounds(20, 20, 500, 25);
 						extendDialog.add(infoLabel);
 
-						JLabel newEndLabel = new JLabel("New End Time:");
+						JLabel newEndLabel = new JLabel("New End Date:");
 						newEndLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-						newEndLabel.setBounds(20, 60, 100, 25);
+						newEndLabel.setBounds(20, 60, 120, 25);
 						extendDialog.add(newEndLabel);
 
-						// Create date/time pickers
+						JLabel yearLabel = new JLabel("Year");
+						yearLabel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+						yearLabel.setBounds(150, 45, 100, 15);
+						extendDialog.add(yearLabel);
+
 						JComboBox<String> yearCombo = createYearCombo();
-						yearCombo.setBounds(120, 60, 80, 25);
+						yearCombo.setBounds(150, 60, 100, 25);
 						extendDialog.add(yearCombo);
 
+						JLabel monthLabel = new JLabel("Month");
+						monthLabel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+						monthLabel.setBounds(260, 45, 80, 15);
+						extendDialog.add(monthLabel);
+
 						JComboBox<String> monthCombo = createMonthCombo();
-						monthCombo.setBounds(210, 60, 60, 25);
+						monthCombo.setBounds(260, 60, 80, 25);
 						extendDialog.add(monthCombo);
 
+						JLabel dayLabel = new JLabel("Day");
+						dayLabel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+						dayLabel.setBounds(350, 45, 80, 15);
+						extendDialog.add(dayLabel);
+
 						JComboBox<String> dayCombo = createDayCombo();
-						dayCombo.setBounds(280, 60, 60, 25);
+						dayCombo.setBounds(350, 60, 80, 25);
 						extendDialog.add(dayCombo);
 
+						JLabel newEndTimeLabel = new JLabel("New End Hour:");
+						newEndTimeLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+						newEndTimeLabel.setBounds(20, 105, 120, 25);
+						extendDialog.add(newEndTimeLabel);
+
+						JLabel hourLabel = new JLabel("Hour");
+						hourLabel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+						hourLabel.setBounds(150, 90, 100, 15);
+						extendDialog.add(hourLabel);
+
 						JComboBox<String> hourCombo = createHourCombo();
-						hourCombo.setBounds(350, 60, 80, 25);
+						hourCombo.setBounds(150, 105, 100, 25);
 						extendDialog.add(hourCombo);
 
 						JLabel hoursLabel = new JLabel("Additional Hours:");
 						hoursLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-						hoursLabel.setBounds(20, 100, 120, 25);
+						hoursLabel.setBounds(20, 150, 130, 25);
 						extendDialog.add(hoursLabel);
 
 						JSpinner hoursSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 72, 1));
-						hoursSpinner.setBounds(140, 100, 80, 25);
+						hoursSpinner.setBounds(155, 150, 80, 25);
 						extendDialog.add(hoursSpinner);
 
 						JLabel noteLabel = new JLabel("Note: The new end time must be after the current end time");
-						noteLabel.setFont(new Font("Times New Roman", Font.ITALIC, 10));
-						noteLabel.setBounds(20, 140, 400, 20);
+						noteLabel.setFont(new Font("Times New Roman", Font.ITALIC, 11));
+						noteLabel.setBounds(20, 190, 500, 20);
 						extendDialog.add(noteLabel);
 
 						JButton extendConfirmBtn = new JButton("Extend");
-						extendConfirmBtn.setBounds(150, 180, 100, 30);
+						extendConfirmBtn.setBounds(170, 230, 100, 30);
 						extendConfirmBtn.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent ev) {
@@ -776,87 +813,83 @@ public class AdminView {
 
 									LocalDateTime selectedEndTime = LocalDateTime.of(year, month, day, hour, 0, 0);
 									LocalDateTime newEndTime = selectedEndTime.plusHours(additionalHours);
-									
+
 									LocalDateTime currentStartTime = selectedReservation.getStartTime();
 									LocalDateTime currentEndTime = selectedReservation.getEndTime();
-									
-									// Validate new end time is after current end time
+
 									if (!newEndTime.isAfter(currentEndTime)) {
 										JOptionPane.showMessageDialog(extendDialog,
-											"New end time must be after the current end time!\n" +
-											"Current: " + currentEndTime,
-											"Validation Error",
-											JOptionPane.WARNING_MESSAGE);
+												"New end time must be after the current end time!\n" +
+												"Current: " + currentEndTime,
+												"Validation Error",
+												JOptionPane.WARNING_MESSAGE);
 										return;
 									}
-									
-									// Validate within 3 months from current end time
+
 									LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
 									if (newEndTime.isAfter(threeMonthsFromNow)) {
 										JOptionPane.showMessageDialog(extendDialog,
-											"Reservation cannot be extended beyond " + threeMonthsFromNow,
-											"Validation Error",
-											JOptionPane.WARNING_MESSAGE);
+												"Reservation cannot be extended beyond " + threeMonthsFromNow,
+												"Validation Error",
+												JOptionPane.WARNING_MESSAGE);
 										return;
 									}
-									
-									// Check for time conflicts (only check the extended period)
+
 									boolean isAvailable = ReservationController.getInstance()
-											.isTimeSlotAvailable(selectedReservation.getEquipmentID(), 
+											.isTimeSlotAvailable(selectedReservation.getEquipmentID(),
 													currentEndTime, newEndTime);
-									
+
 									if (!isAvailable) {
 										JOptionPane.showMessageDialog(extendDialog,
-											"The requested extension time conflicts with another reservation!\n" +
-											"Please choose a different end time.",
-											"Time Conflict",
-											JOptionPane.ERROR_MESSAGE);
+												"The requested extension time conflicts with another reservation!\n" +
+												"Please choose a different end time.",
+												"Time Conflict",
+												JOptionPane.ERROR_MESSAGE);
 										return;
 									}
-									
-									// Show confirmation
+
 									int confirm = JOptionPane.showConfirmDialog(extendDialog,
-										"Confirm Extension?\n\n" +
-										"Reservation ID: " + reservationId + "\n" +
-										"Current End Time: " + currentEndTime + "\n" +
-										"New End Time: " + newEndTime + "\n" +
-										"Additional Hours: " + additionalHours,
-										"Confirm Extension",
-										JOptionPane.YES_NO_OPTION,
-										JOptionPane.QUESTION_MESSAGE);
-									
+											"Confirm Extension?\n\n" +
+											"Reservation ID: " + reservationId + "\n" +
+											"Current End Time: " + currentEndTime + "\n" +
+											"New End Time: " + newEndTime + "\n" +
+											"Additional Hours: " + additionalHours,
+											"Confirm Extension",
+											JOptionPane.YES_NO_OPTION,
+											JOptionPane.QUESTION_MESSAGE);
+
 									if (confirm == JOptionPane.YES_OPTION) {
 										boolean success = ReservationController.getInstance()
-												.updateReservation(reservationId, 
+												.updateReservation(reservationId,
 														selectedReservation.getEquipmentID(),
 														currentStartTime, newEndTime);
-										
+
 										if (success) {
 											JOptionPane.showMessageDialog(extendDialog,
-												"Reservation extended successfully!",
-												"Success",
-												JOptionPane.INFORMATION_MESSAGE);
+													"Reservation extended successfully!",
+													"Success",
+													JOptionPane.INFORMATION_MESSAGE);
 											extendDialog.dispose();
 											refreshRegularView();
 										} else {
 											JOptionPane.showMessageDialog(extendDialog,
-												"Failed to extend reservation.",
-												"Error",
-												JOptionPane.ERROR_MESSAGE);
+													"Failed to extend reservation.",
+													"Error",
+													JOptionPane.ERROR_MESSAGE);
 										}
 									}
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(extendDialog,
-										"Invalid date/time selection!",
-										"Error",
-										JOptionPane.ERROR_MESSAGE);
+											"Invalid date/time selection!",
+											"Error",
+											JOptionPane.ERROR_MESSAGE);
 								}
 							}
 						});
 						extendDialog.add(extendConfirmBtn);
-						
+
 						JButton cancelBtn = new JButton("Cancel");
-						cancelBtn.setBounds(260, 180, 100, 30);
+						cancelBtn.setBounds(280, 230, 100, 30);
 						cancelBtn.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent e) {
@@ -864,31 +897,39 @@ public class AdminView {
 							}
 						});
 						extendDialog.add(cancelBtn);
-						
-						// Set default values to current end time
+
 						LocalDateTime currentEnd = selectedReservation.getEndTime();
 						yearCombo.setSelectedItem(String.valueOf(currentEnd.getYear()));
 						monthCombo.setSelectedItem(String.format("%02d", currentEnd.getMonthValue()));
 						dayCombo.setSelectedItem(String.format("%02d", currentEnd.getDayOfMonth()));
 						hourCombo.setSelectedItem(String.format("%02d:00", currentEnd.getHour()));
-						
+
 						extendDialog.setVisible(true);
 					}
 				}
 			}
 		});
 
-		// Add mouse listener to the table
 		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
-					int row = table.rowAtPoint(e.getPoint());
-					if (row >= 0) {
-						table.setRowSelectionInterval(row, row);
+			private void handlePopup(MouseEvent e) {
+				int row = table.rowAtPoint(e.getPoint());
+				if (row >= 0) {
+					table.requestFocusInWindow();
+					table.setRowSelectionInterval(row, row);
+					if (e.isPopupTrigger()) {
 						reservationMenu.show(table, e.getX(), e.getY());
 					}
 				}
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				handlePopup(e);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				handlePopup(e);
 			}
 		});
 	}
@@ -927,272 +968,6 @@ public class AdminView {
 			return "Upcoming";
 		}
 	}
-
-//	private void setupReservationContextMenu(DefaultTableModel model, ArrayList<Reservation> res) {
-//		JPopupMenu reservationMenu = new JPopupMenu();
-//		
-//		// Cancel Reservation option
-//		JMenuItem cancelItem = new JMenuItem("Cancel Reservation");
-//		// Extend Reservation option
-//		JMenuItem extendItem = new JMenuItem("Extend Reservation");
-//		
-//		reservationMenu.add(cancelItem);
-//		reservationMenu.add(extendItem);
-//
-//		// Cancel Reservation Action
-//		cancelItem.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				int selectedRow = table.getSelectedRow();
-//				if (selectedRow >= 0) {
-//					int modelRow = table.convertRowIndexToModel(selectedRow);
-//					String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
-//					String status = table.getModel().getValueAt(modelRow, 4).toString();
-//
-//					Reservation selectedReservation = findReservationById(reservationId, res);
-//
-//					if (selectedReservation != null) {
-//						if (status.equals("Missed") || status.equals("Completed")) {
-//							JOptionPane.showMessageDialog(AdminViewPanel,
-//									"Cannot cancel a reservation that has already passed!",
-//									"Invalid Action",
-//									JOptionPane.WARNING_MESSAGE);
-//							return;
-//						}
-//
-//						int confirm = JOptionPane.showConfirmDialog(AdminViewPanel,
-//								"Are you sure you want to CANCEL this reservation?\n\n" +
-//								"Reservation ID: " + reservationId + "\n" +
-//								"Equipment: " + selectedReservation.getEquipmentID() + "\n" +
-//								"Start Time: " + selectedReservation.getStartTime() + "\n" +
-//								"End Time: " + selectedReservation.getEndTime() + "\n\n" +
-//								"This action cannot be undone!",
-//								"Confirm Cancellation",
-//								JOptionPane.YES_NO_OPTION,
-//								JOptionPane.WARNING_MESSAGE);
-//
-//						if (confirm == JOptionPane.YES_OPTION) {
-//							boolean success = ReservationController.getInstance()
-//									.cancelReservation(reservationId);
-//							
-//							if (success) {
-//								JOptionPane.showMessageDialog(AdminViewPanel,
-//									"Reservation cancelled successfully!",
-//									"Success",
-//									JOptionPane.INFORMATION_MESSAGE);
-//								refreshRegularView();
-//							} else {
-//								JOptionPane.showMessageDialog(AdminViewPanel,
-//									"Failed to cancel reservation.",
-//									"Error",
-//									JOptionPane.ERROR_MESSAGE);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		});
-//
-//		// Extend Reservation Action
-//		extendItem.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				int selectedRow = table.getSelectedRow();
-//				if (selectedRow >= 0) {
-//					int modelRow = table.convertRowIndexToModel(selectedRow);
-//					String reservationId = table.getModel().getValueAt(modelRow, 0).toString();
-//					String status = table.getModel().getValueAt(modelRow, 4).toString();
-//
-//					Reservation selectedReservation = findReservationById(reservationId, res);
-//
-//					if (selectedReservation != null) {
-//						if (status.equals("Missed") || status.equals("Completed")) {
-//							JOptionPane.showMessageDialog(AdminViewPanel,
-//									"Cannot extend a reservation that has already ended!",
-//									"Invalid Action",
-//									JOptionPane.WARNING_MESSAGE);
-//							return;
-//						}
-//
-//						// Create popup dialog for extension
-//						JDialog extendDialog = new JDialog();
-//						extendDialog.setTitle("Extend Reservation");
-//						extendDialog.setModal(true);
-//						extendDialog.setSize(450, 350);
-//						extendDialog.setLocationRelativeTo(null);
-//						extendDialog.setLayout(null);
-//
-//						JLabel infoLabel = new JLabel("Current End Time: " + selectedReservation.getEndTime());
-//						infoLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-//						infoLabel.setBounds(20, 20, 400, 25);
-//						extendDialog.add(infoLabel);
-//
-//						JLabel newEndLabel = new JLabel("New End Time:");
-//						newEndLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-//						newEndLabel.setBounds(20, 60, 100, 25);
-//						extendDialog.add(newEndLabel);
-//
-//						// Create date/time pickers
-//						JComboBox<String> yearCombo = createYearCombo();
-//						yearCombo.setBounds(120, 60, 80, 25);
-//						extendDialog.add(yearCombo);
-//
-//						JComboBox<String> monthCombo = createMonthCombo();
-//						monthCombo.setBounds(210, 60, 60, 25);
-//						extendDialog.add(monthCombo);
-//
-//						JComboBox<String> dayCombo = createDayCombo();
-//						dayCombo.setBounds(280, 60, 60, 25);
-//						extendDialog.add(dayCombo);
-//
-//						JComboBox<String> hourCombo = createHourCombo();
-//						hourCombo.setBounds(350, 60, 80, 25);
-//						extendDialog.add(hourCombo);
-//
-//						JLabel hoursLabel = new JLabel("Additional Hours:");
-//						hoursLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-//						hoursLabel.setBounds(20, 100, 120, 25);
-//						extendDialog.add(hoursLabel);
-//
-//						JSpinner hoursSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 72, 1));
-//						hoursSpinner.setBounds(140, 100, 80, 25);
-//						extendDialog.add(hoursSpinner);
-//
-//						JLabel noteLabel = new JLabel("Note: The new end time must be after the current end time");
-//						noteLabel.setFont(new Font("Times New Roman", Font.ITALIC, 10));
-//						noteLabel.setBounds(20, 140, 400, 20);
-//						extendDialog.add(noteLabel);
-//
-//						JButton extendConfirmBtn = new JButton("Extend");
-//						extendConfirmBtn.setBounds(150, 180, 100, 30);
-//						extendConfirmBtn.addActionListener(new ActionListener() {
-//							@Override
-//							public void actionPerformed(ActionEvent ev) {
-//								try {
-//									int year = Integer.parseInt((String) yearCombo.getSelectedItem());
-//									int month = Integer.parseInt((String) monthCombo.getSelectedItem());
-//									int day = Integer.parseInt((String) dayCombo.getSelectedItem());
-//									String hourStr = (String) hourCombo.getSelectedItem();
-//									int hour = Integer.parseInt(hourStr.split(":")[0]);
-//									int additionalHours = (Integer) hoursSpinner.getValue();
-//
-//									LocalDateTime selectedEndTime = LocalDateTime.of(year, month, day, hour, 0, 0);
-//									LocalDateTime newEndTime = selectedEndTime.plusHours(additionalHours);
-//									
-//									LocalDateTime currentStartTime = selectedReservation.getStartTime();
-//									LocalDateTime currentEndTime = selectedReservation.getEndTime();
-//									
-//									// Validate new end time is after current end time
-//									if (!newEndTime.isAfter(currentEndTime)) {
-//										JOptionPane.showMessageDialog(extendDialog,
-//											"New end time must be after the current end time!\n" +
-//											"Current: " + currentEndTime,
-//											"Validation Error",
-//											JOptionPane.WARNING_MESSAGE);
-//										return;
-//									}
-//									
-//									// Validate within 3 months from current end time
-//									LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
-//									if (newEndTime.isAfter(threeMonthsFromNow)) {
-//										JOptionPane.showMessageDialog(extendDialog,
-//											"Reservation cannot be extended beyond " + threeMonthsFromNow,
-//											"Validation Error",
-//											JOptionPane.WARNING_MESSAGE);
-//										return;
-//									}
-//									
-//									// Check for time conflicts (only check the extended period)
-//									boolean isAvailable = ReservationController.getInstance()
-//											.isTimeSlotAvailable(selectedReservation.getEquipmentID(), 
-//													currentEndTime, newEndTime);
-//									
-//									if (!isAvailable) {
-//										JOptionPane.showMessageDialog(extendDialog,
-//											"The requested extension time conflicts with another reservation!\n" +
-//											"Please choose a different end time.",
-//											"Time Conflict",
-//											JOptionPane.ERROR_MESSAGE);
-//										return;
-//									}
-//									
-//									// Show confirmation
-//									int confirm = JOptionPane.showConfirmDialog(extendDialog,
-//										"Confirm Extension?\n\n" +
-//										"Reservation ID: " + reservationId + "\n" +
-//										"Current End Time: " + currentEndTime + "\n" +
-//										"New End Time: " + newEndTime + "\n" +
-//										"Additional Hours: " + additionalHours,
-//										"Confirm Extension",
-//										JOptionPane.YES_NO_OPTION,
-//										JOptionPane.QUESTION_MESSAGE);
-//									
-//									if (confirm == JOptionPane.YES_OPTION) {
-//										boolean success = ReservationController.getInstance()
-//												.updateReservation(reservationId, 
-//														selectedReservation.getEquipmentID(),
-//														currentStartTime, newEndTime);
-//										
-//										if (success) {
-//											JOptionPane.showMessageDialog(extendDialog,
-//												"Reservation extended successfully!",
-//												"Success",
-//												JOptionPane.INFORMATION_MESSAGE);
-//											extendDialog.dispose();
-//											refreshRegularView();
-//										} else {
-//											JOptionPane.showMessageDialog(extendDialog,
-//												"Failed to extend reservation.",
-//												"Error",
-//												JOptionPane.ERROR_MESSAGE);
-//										}
-//									}
-//								} catch (Exception ex) {
-//									JOptionPane.showMessageDialog(extendDialog,
-//										"Invalid date/time selection!",
-//										"Error",
-//										JOptionPane.ERROR_MESSAGE);
-//								}
-//							}
-//						});
-//						extendDialog.add(extendConfirmBtn);
-//						
-//						JButton cancelBtn = new JButton("Cancel");
-//						cancelBtn.setBounds(260, 180, 100, 30);
-//						cancelBtn.addActionListener(new ActionListener() {
-//							@Override
-//							public void actionPerformed(ActionEvent e) {
-//								extendDialog.dispose();
-//							}
-//						});
-//						extendDialog.add(cancelBtn);
-//						
-//						// Set default values to current end time
-//						LocalDateTime currentEnd = selectedReservation.getEndTime();
-//						yearCombo.setSelectedItem(String.valueOf(currentEnd.getYear()));
-//						monthCombo.setSelectedItem(String.format("%02d", currentEnd.getMonthValue()));
-//						dayCombo.setSelectedItem(String.format("%02d", currentEnd.getDayOfMonth()));
-//						hourCombo.setSelectedItem(String.format("%02d:00", currentEnd.getHour()));
-//						
-//						extendDialog.setVisible(true);
-//					}
-//				}
-//			}
-//		});
-//
-//		table.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mousePressed(MouseEvent e) {
-//				if (SwingUtilities.isRightMouseButton(e)) {
-//					int row = table.rowAtPoint(e.getPoint());
-//					if (row >= 0) {
-//						table.setRowSelectionInterval(row, row);
-//						reservationMenu.show(table, e.getX(), e.getY());
-//					}
-//				}
-//			}
-//		});
-//	}
 
 	private JComboBox<String> createYearCombo() {
 		JComboBox<String> combo = new JComboBox<>();
@@ -1238,8 +1013,8 @@ public class AdminView {
 	}
 
 	private void addEquipment(ArrayList<Equipment> equipments, DefaultTableModel model) {
-		if(equipments != null) {
-			for(Equipment e : equipments) {
+		if (equipments != null) {
+			for (Equipment e : equipments) {
 				Object[] rowData = {
 						e.getEquipmentId(),
 						e.getName(),

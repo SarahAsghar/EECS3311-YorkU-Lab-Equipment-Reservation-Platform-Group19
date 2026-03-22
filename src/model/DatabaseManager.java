@@ -144,8 +144,8 @@ public class DatabaseManager {
 		return true;
 	}
 
-	public boolean saveReservation(Reservation newReservation) {
-		reservations.add(newReservation);
+	public boolean saveReservation(ArrayList<Reservation> allReservations) {
+		reservations = (allReservations);
 		return true;
 	}
 	

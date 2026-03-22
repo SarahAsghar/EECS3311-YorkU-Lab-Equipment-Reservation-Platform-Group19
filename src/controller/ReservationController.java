@@ -30,6 +30,8 @@ public class ReservationController {
         for (Reservation r : allReservations) {
             if (r.getReservationId().equals(reservationId)) {
                 if (r.getState() instanceof ConfirmedState) {
+                	allReservations.remove(r);
+                	db.saveReservation(allReservations);
                     return db.deleteReservation(reservationId);
                 }
             }
@@ -102,7 +104,8 @@ public class ReservationController {
                 endTime, new PendingState());
         newReservation.setUserID(u.getEmail());
         
-        boolean saved = db.saveReservation(newReservation);
+        allReservations.add(newReservation);
+        boolean saved = db.saveReservation(allReservations);
         
         if (saved) {
             return newReservation;
