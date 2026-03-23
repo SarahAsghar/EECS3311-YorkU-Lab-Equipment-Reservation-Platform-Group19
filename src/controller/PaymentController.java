@@ -7,12 +7,18 @@ import model.User.User;
 
 public class PaymentController {
     
+	/**
+	 * Singular instance of this controller class
+	 */
     private static PaymentController instance;
-    private static final double DEPOSIT_HOURS = 1.0;
     
-    private PaymentController() {
-    }
     
+    private PaymentController() {}
+    
+    /**
+     * Get the 1 instance of this class
+     * @return PaymentController instance
+     */
     public static PaymentController getInstance() {
         if (instance == null) {
             instance = new PaymentController();
@@ -20,6 +26,14 @@ public class PaymentController {
         return instance;
     }
     
+    /**
+     * Process payment for the reservation of equipment
+     * @param reservation: Reservation of equipment
+     * @param amount: Amount to be paid
+     * @param paymentMethod: Method chosen
+     * @param paymentDetails: Any extra details
+     * @return boolean: If worked or not
+     */
     public boolean processPayment(Reservation reservation, double amount, 
             String paymentMethod, String paymentDetails) {
         
@@ -54,18 +68,27 @@ public class PaymentController {
         }
     }
     
+    /**
+     * Payment by card
+     */
     public boolean processCardPayment(Reservation reservation, double amount, 
             String cardNumber, String cardHolder, String expiry, String cvv) {
         String paymentDetails = "Card: " + cardNumber;
         return processPayment(reservation, amount, "Credit/Debit Card", paymentDetails);
     }
     
+    /**
+     * Payment by Instituion
+     */
     public boolean processInstitutionalPayment(Reservation reservation, double amount,
             String accountNumber, String routingNumber, String institution, String department) {
         String paymentDetails = "Institution: " + institution + ", Account: " + accountNumber;
         return processPayment(reservation, amount, "Institutional Account", paymentDetails);
     }
     
+    /**
+     * Payment by Grant
+     */
     public boolean processGrantPayment(Reservation reservation, double amount,
             String grantNumber, String researchProject) {
         String paymentDetails = "Grant: " + grantNumber + ", Project: " + researchProject;

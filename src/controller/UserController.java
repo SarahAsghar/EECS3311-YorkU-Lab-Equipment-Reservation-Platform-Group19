@@ -11,14 +11,33 @@ import view.AdminView;
 
 public class UserController {
 
+	/**
+	 * Singular instance of this controller
+	 */
     private static UserController instance;
+    
+    /**
+     * Database instance
+     */
     private DatabaseManager db = DatabaseManager.getInstance();
+    
+    /**
+     * Logged in user instance
+     */
     private static User LoggedInUser;
 
+    /**
+     * Logs in the user based on email and password provided
+     * @param email: email to check with database
+     * @param password: pasword to check with database
+     * @return String if login valid or error
+     */
     public String loginUser(String email, String password) {
         ArrayList<User> users = db.loadUsers();
 
         User user = null;
+        
+        //Finds user
         for(User u: users) {
             if(u.getEmail().equals(email) && u.getPassword().equals(password)) {
                 user = u;
@@ -26,6 +45,7 @@ public class UserController {
             }
         }
         
+        //Creates user to save for logged in user
         if(user != null) {
             UserType t = user.getUserType();
             ArrayList<Reservation> res = db.loadReservations();
@@ -55,9 +75,20 @@ public class UserController {
         else return "Fail";
     }
 
+    /**
+     * Register a new user
+     * @param email: Email to check if unique and then register
+     * @param password: Password to check if strong, then register
+     * @param t: Type of User
+     * @param idNum: Id number of user
+     * @param name: name of user
+     * @return: String if worked or ot
+     */
     public String registerUser(String email, String password, UserType t, 
             String idNum, String name) {
         ArrayList<User> users = db.loadUsers();
+        
+        //Check email unique
         for(User u: users) {
             if(u.getEmail().equals(email)) {
                 return "Email not unique";
@@ -69,6 +100,7 @@ public class UserController {
             return "Invalid email";
         }
 
+        //check if strong password
         boolean strongPassword = checkPassword(password); 
         if (!strongPassword) {
             return "Password must contain uppercase, lowercase, number, and special character";
@@ -80,6 +112,11 @@ public class UserController {
         return "User successfully created!";
     }
 
+    /**
+     * Checks if email is unique
+     * @param email: Email to check
+     * @return boolean unique
+     */
     private boolean isValidEmail(String email) {
         if (email == null || email.isEmpty()) {
             return false;
@@ -107,6 +144,10 @@ public class UserController {
         return true;
     }
     
+    /**
+     * Creates Lab Manager User
+     * @return STring  of Lab Manager data
+     */
     public String createLabManagerUser() {
         String number = db.loadNumLabManagerAccountCreated();
         int num = Integer.valueOf(number) + 1;
@@ -125,6 +166,11 @@ public class UserController {
                 + "password=" + password;
     }
 
+    /**
+     * Check if password is strong
+     * @param password: password to check
+     * @return strong password or not
+     */
     private boolean checkPassword(String password) {
         boolean hasUppercase = password.matches(".*[A-Z].*");
         boolean hasLowercase = password.matches(".*[a-z].*");
@@ -133,6 +179,10 @@ public class UserController {
         return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
     }
 
+    /**
+     * Get instance of this controller
+     * @return UserController instance
+     */
     public static synchronized UserController getInstance() {
         if(instance == null) {
             instance = new UserController();
@@ -140,6 +190,11 @@ public class UserController {
         return instance;
     }
 
+    /**
+     * HeadLabCoordinator can approve user
+     * @param email: user email to approve
+     * @return boolean if worked or not
+     */
     public boolean approveUser(String email) {
         ArrayList<User> users = db.loadUsers();
         
@@ -153,6 +208,11 @@ public class UserController {
         return false;
     }
 
+    /**
+     * HeadLabCoordinator can remove user by email
+     * @param email: User to remove
+     * @return boolean if worked or not
+     */
     public boolean removeUser(String email) {
         ArrayList<User> users = db.loadUsers();
         
@@ -165,11 +225,19 @@ public class UserController {
         }
         return false;
     }
+    /**
+     * Get the current logged in user
+     * @return User that is logged in
+     */
     
     public static User getLoggedInUser() {
         return LoggedInUser;
     }
 
+    /**
+     * Sets the logged in user
+     * @param u: User to be logged in
+     */
     public static void setLoggedInUser(User u) {
         LoggedInUser = u;
     }

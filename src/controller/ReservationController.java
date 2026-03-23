@@ -11,11 +11,18 @@ import model.Reservation.Reservation;
 import model.User.User;
 
 public class ReservationController {
+	/**
+	 * Singular instance of class
+	 */
     private static ReservationController instance;
     
     private ReservationController() {
     }
 
+    /**
+     * get instance of controller
+     * @return ReservationController instance
+     */
     public static ReservationController getInstance() {
         if(instance == null) {
             instance = new ReservationController();
@@ -23,6 +30,11 @@ public class ReservationController {
         return instance;
     }
 
+    /**
+     * Cancel reservation of user
+     * @param reservationId: reservation to cancel
+     * @return boolean if worked or not
+     */
     public boolean cancelReservation(String reservationId) {
         DatabaseManager db = DatabaseManager.getInstance();
         ArrayList<Reservation> allReservations = db.loadReservations();
@@ -39,6 +51,14 @@ public class ReservationController {
         return false;
     }
 
+    /**
+     * Update reservation times
+     * @param reservationId: reservation to update
+     * @param equipmentId: Equipment to update
+     * @param newStartTime: new start time to update
+     * @param newEndTime: new end time to update
+     * @return boolean if worked or not
+     */
     public boolean updateReservation(String reservationId, String equipmentId, 
             LocalDateTime newStartTime, LocalDateTime newEndTime) {
         DatabaseManager db = DatabaseManager.getInstance();
@@ -63,6 +83,13 @@ public class ReservationController {
         return false;
     }
 
+    /**
+     * Create new reservation, checks if time overlaps with anyone else with same id
+     * @param equipID equipment id to be used in reservation
+     * @param startTime start time of reservation
+     * @param endTime end time of reservation
+     * @return Reservation created
+     */
     public Reservation createReservation(String equipID, LocalDateTime startTime, 
             LocalDateTime endTime) {
         User u = UserController.getLoggedInUser();
@@ -75,6 +102,7 @@ public class ReservationController {
         
         ArrayList<Reservation> allReservations = db.loadReservations();
         
+        //check if time slot is open
         for (Reservation r : allReservations) {
             if (r.getEquipmentID().equals(equipID)) {
                 if (isTimeOverlap(startTime, endTime, r.getStartTime(), r.getEndTime())) {
@@ -84,6 +112,7 @@ public class ReservationController {
             }
         }
         
+        //check if valid time
         if (startTime.isBefore(LocalDateTime.now())) {
             System.out.println("Start time cannot be in the past");
             return null;
@@ -94,11 +123,13 @@ public class ReservationController {
             return null;
         }
         
+        //place max time on time reservation
         LocalDateTime threeMonthsLater = LocalDateTime.now().plusMonths(3);
         if (startTime.isAfter(threeMonthsLater) || endTime.isAfter(threeMonthsLater)) {
             System.out.println("Reservation cannot be more than 3 months in advance");
             return null;
         }
+        
         
         Reservation newReservation = new Reservation(reservationId, equipID, startTime, 
                 endTime, new PendingState());
@@ -113,15 +144,33 @@ public class ReservationController {
         return null;
     }
     
+    /**
+     * Create reservation with given reservation
+     * @param r: Reservation to copy
+     * @return Reservation made
+     */
     public Reservation createReservation(Reservation r) {
         return createReservation(r.getEquipmentID(), r.getStartTime(), r.getEndTime());
     }
     
+    /**
+     * checks if the time overlaps
+     * @param start1: Start of Reservation1
+     * @param end1: end of reservation 1
+     * @param start2: start of reservation 2
+     * @param end2: end of reservation 2
+     * @return boolean: time is overlap or not
+     */
     private boolean isTimeOverlap(LocalDateTime start1, LocalDateTime end1, 
                                    LocalDateTime start2, LocalDateTime end2) {
         return start1.isBefore(end2) && end1.isAfter(start2);
     }
     
+    /**
+     * Returns reservations of equipments
+     * @param equipmentId: Equipment to find reservations of
+     * @return ArrayList<Reservation> with the same equipments
+     */
     public ArrayList<Reservation> getReservationsByEquipment(String equipmentId) {
         DatabaseManager db = DatabaseManager.getInstance();
         ArrayList<Reservation> allReservations = db.loadReservations();
@@ -135,6 +184,10 @@ public class ReservationController {
         return equipmentReservations;
     }
     
+    /**
+     * Get User reservations
+     * @return ArrayList<Reservation> of user reservations
+     */
     public ArrayList<Reservation> getMyReservations() {
         User currentUser = UserController.getLoggedInUser();
         if (currentUser == null) {
@@ -154,6 +207,13 @@ public class ReservationController {
         return myReservations;
     }
     
+    /**
+     * Checks if time slot id available
+     * @param equipmentId: equipment to check
+     * @param startTime: start time of reservation
+     * @param endTime: end time of reservation
+     * @return boolean available or not
+     */
     public boolean isTimeSlotAvailable(String equipmentId, LocalDateTime startTime, 
             LocalDateTime endTime) {
         DatabaseManager db = DatabaseManager.getInstance();
