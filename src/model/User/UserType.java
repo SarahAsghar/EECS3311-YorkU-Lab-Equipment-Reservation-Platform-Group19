@@ -42,9 +42,9 @@ public enum UserType {
 			return UserType.RESEARCHER;
 		}else if(s.equalsIgnoreCase("GUEST")) {
 			return UserType.GUEST;
-		}else if(s.equalsIgnoreCase("HEADLABCOORDINATOR"){
+		}else if(s.equalsIgnoreCase("HEADLABCOORDINATOR")){
 			return UserType.HEADLABCOORDINATOR;
-		}else if(s.equalsIgnoreCase("LABMANAGER"){
+		}else if(s.equalsIgnoreCase("LABMANAGER")){
 			return UserType.LABMANAGER;
 		}else {
 			return null;
