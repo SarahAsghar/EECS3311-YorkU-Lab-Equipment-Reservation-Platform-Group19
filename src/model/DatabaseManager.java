@@ -71,11 +71,33 @@ public class DatabaseManager {
 	}
 	
 	public ArrayList<User> loadUsers(){
+		ArrayList<User> users = new ArrayList<User>();
+		
+		try {
+			String line;
+			userFileReader = new BufferedReader(new FileReader(userFilePath));
+			while((line = this.userFileReader.readLine()) != null) {
+				String[] userData = line.split(",");
+				User u = new User(userData[0], userData[1], UserType.getTypeFromString(userData[4]), userData[3], userData[2]);
+			}
+		}catch (Exception e){
+			System.out.println(e.getMessage());
+		}
+		
 		return users;
 	}
 	
-	public void saveUsers(ArrayList<User> u) {
-		users = u;
+	public void saveUsers(ArrayList<User> users) {
+		try {
+			userFileWriter = new BufferedWriter(new FileWriter(userFilePath));
+			for(User u: users) {
+				String line = u.getIDNum() + "," + u.getName() + "," + u.getEmail() + "," + u.getPassword() + "," + u.getUserType() + "\n";
+				userFileWriter.write(line);
+			}
+			userFileWriter.close();
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public ArrayList<Equipment> loadEquipment(){
@@ -109,7 +131,25 @@ public class DatabaseManager {
 	}
 	
 	public ArrayList<Payment> loadPayments(){
-		return payments;
+		ArrayList<Payment> payments = new ArrayList<Payment>();
+		
+		try {
+			this.paymentFileReader = new BufferedReader(new FileReader(paymentFilePath));
+			String line;
+			
+			while((line = this.paymentFileReader.readLine()) != null) {
+				String[] paymentData = line.split(",");
+				
+//				if(paymentData[1].equals("CR"))
+				
+			//	Payment p = new Payment(Double.parseDouble(paymentData[0]), )
+			}
+			
+		}catch(Exception e) {
+			
+		}
+		
+		return null;
 	}
 	
 	public void savePaymnents(ArrayList<Payment> p) {

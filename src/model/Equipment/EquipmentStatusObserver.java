@@ -1,5 +1,6 @@
 package model.Equipment;
 
+//public class EquipmentStatusObserver {
   public class EquipmentStatusObserver implements Observer {
 
     private final Equipment equipment;
