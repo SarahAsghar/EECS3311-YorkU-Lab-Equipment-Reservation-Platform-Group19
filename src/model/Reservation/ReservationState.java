@@ -1,12 +1,9 @@
 package model.Reservation;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public interface ReservationState {
-
-	public void extend(Reservation reservation, Date extension);
-	
-	public void cancel(Reservation reservation);
-	
-	public Date checkArrival(Reservation reservation);
+    void extend(Reservation reservation, LocalDateTime newEndTime);
+    void cancel(Reservation reservation);
+    void checkArrival(Reservation reservation);
 }
