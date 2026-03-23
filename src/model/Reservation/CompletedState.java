@@ -1,5 +1,23 @@
 package model.Reservation;
 
-public class CompletedState {
+import java.util.Date;
 
+public class CompletedState implements ReservationState{
+
+	public void extend(Reservation reservation, Date extension) {
+		reservation.extendReservation(extension);
+		
+	}
+
+	
+	public void cancel(Reservation reservation) {
+		reservation.cancelReservation();
+		
+	}
+
+	
+	public Date checkArrival(Reservation reservation) {
+		return reservation.checkArrival();
+		
+	}
 }
