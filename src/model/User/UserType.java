@@ -33,21 +33,5 @@ public enum UserType {
 		return hourlyFee;
 	}
 	
-	public static UserType getTypeFromString(String s) {
-		if(s.equalsIgnoreCase("FACULTY")) {
-			return UserType.FACULTY;
-		}else if(s.equalsIgnoreCase("STUDENT")) {
-			return UserType.STUDENT;
-		}else if(s.equalsIgnoreCase("RESEARCHER")) {
-			return UserType.RESEARCHER;
-		}else if(s.equalsIgnoreCase("GUEST")) {
-			return UserType.GUEST;
-		}else if(s.equalsIgnoreCase("HEADLABCOORDINATOR")){
-			return UserType.HEADLABCOORDINATOR;
-		}else if(s.equalsIgnoreCase("LABMANAGER")){
-			return UserType.LABMANAGER;
-		}else {
-			return null;
-		}
-	}
 }
+
