@@ -1,23 +1,23 @@
 package model.Reservation;
 
+import java.time.LocalDateTime;
 
+public class PendingState implements ReservationState {
 
-public class PendingState implements ReservationState{
+    @Override
+    public void extend(Reservation reservation, LocalDateTime newEndTime) {
+        throw new IllegalStateException("Pending reservation cannot be extended.");
+    }
 
-	public void extend(Reservation reservation, Date extension) {
-		reservation.extendReservation(extension);
-		
-	}
+    @Override
+    public void cancel(Reservation reservation) {
+        reservation.setState(new CancelledState());
+    }
 
-	
-	public void cancel(Reservation reservation) {
-		reservation.cancelReservation();
-		
-	}
-
-	
-	public Date checkArrival(Reservation reservation) {
-		return reservation.checkArrival();
-		
-	}
+    @Override
+    public void checkArrival(Reservation reservation) {
+        if (LocalDateTime.now().isAfter(reservation.getStartTime())) {
+            reservation.setState(new ActiveState());
+        }
+    }
 }
