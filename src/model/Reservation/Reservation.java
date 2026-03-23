@@ -3,24 +3,47 @@ package model.Reservation;
 import java.util.Date;
 import java.util.Random;
 
+import model.User.User;
+
 public class Reservation {
 
-	private String reservationId;
 	private String userId;
 	private String EquipmentID;
-	private Date startTime;
-	private Date endTime;
-	private Date actualArrivalTime;
-	private ReservationStatus status;
 	
-	public Reservation(String reserveID, String userID, String EquipmentID, Date start, Date end, Date arrival, ReservationStatus status) {
-		this.reservationId = reserveID;
-		this.userId = userID;
-		this.EquipmentID = EquipmentID;
+	private String reservationId;
+	private LocalDateTime startTime;
+	private LocalDateTime endTime;
+	private LocalDateTime actualArrivalTime;
+	private ReservationState currentState;
+	private boolean depositPaid;
+	private double price;
+	
+	public Reservation(String id, String equipID, LocalDateTime start, LocalDateTime end, ReservationState state) {
+		this.reservationId = id;
 		this.startTime = start;
 		this.endTime = end;
-		this.actualArrivalTime = arrival;
-		this.status = status;
+		this.currentState = state;
+		EquipmentID = equipID;
+		depositPaid = false;
+	}
+	
+	public void setState(ReservationState state) {
+		this.currentState = state;
+	}
+	
+	public void extendReservation(LocalDateTime extend) {
+		this.startTime = extend;
+	}
+	
+	public Reservation cancelReservation() {
+		Reservation temp = this;
+		this.reservationId = null;
+		this.startTime = null;
+		this.endTime = null;
+		this.actualArrivalTime = null;
+		this.currentState = null;
+		
+		return temp;
 	}
 	
 	public String getReservationId() {
@@ -37,32 +60,59 @@ public class Reservation {
 		return EquipmentID;
 	}
 
-	public Date getStartTime() {
+	public LocalDateTime getStartTime() {
 		return startTime;
 	}
 
-	public Date getEndTime() {
+	public LocalDateTime getEndTime() {
 		return endTime;
 	}
 
-	public ReservationStatus getStatus() {
-		return status;
+	public ReservationState getState() {
+		// TODO Auto-generated method stub
+		return currentState;
 	}
 
-	public void setStatus(ReservationStatus status) {
-		this.status = status;
+	public double calculateHours() {
+	    if (startTime != null && endTime != null) {
+	        // Calculate the duration in hours
+	        long minutes = java.time.Duration.between(startTime, endTime).toMinutes();
+	        double hours = minutes / 60.0;
+	        // Round to 2 decimal places
+	        return Math.round(hours * 100.0) / 100.0;
+	    }
+	    return 0;
 	}
 
-	public Date getActualArrivalTime() {
-		return actualArrivalTime;
+	public double calculateTotalCost(User user) {
+	    double hours = calculateHours();
+	    if (user != null && user.getUserType() != null) {
+	        return hours * user.getUserType().getHourlyFee();
+	    }
+	    return 0;
 	}
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
+	public void setStartTime(LocalDateTime newStartTime) {
+		startTime = newStartTime;
 	}
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+	public void setEndTime(LocalDateTime newEndTime) {
+		endTime = newEndTime;
+	}
+
+	public void setDepositPaid(boolean b) {
+		depositPaid = b;
+		
+	}
+
+	public void setDepositAmount(double amount) {
+		price = amount;
+		
+	}
+
+	public void setUserID(String email) {
+		userId = email;
+		
 	}
 	
 	public void setEquipmentID(String equipmentID) {

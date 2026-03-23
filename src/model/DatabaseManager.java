@@ -32,6 +32,14 @@ public class DatabaseManager {
 	private BufferedWriter paymentFileWriter = null;
 	private BufferedWriter reservationFileWriter = null;
 	
+	private ArrayList<User> users = new ArrayList<User>();
+	private ArrayList<Equipment> equipments = new ArrayList<Equipment>();
+	private ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+	private ArrayList<Payment> payments = new ArrayList<Payment>();
+	
+	private String NumLabManagerAccountCreated = "1";	
+	
+	
 	private DatabaseManager() {
 		try {
 			//Define BufferedReaders
@@ -93,15 +101,15 @@ public class DatabaseManager {
 	}
 	
 	public ArrayList<Equipment> loadEquipment(){
-		return null;
+		ArrayList<Equipment> e = new ArrayList<Equipment>();
+		return equipments;
 	}
 	
-	public void saveEquipment(ArrayList<Equipment> equipment) {
-		
+	public void saveEquipment(ArrayList<Equipment> e) {
+		equipments = e;
 	}
 	
 	public ArrayList<Reservation> loadReservations(){
-		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
 		
 		try {
 			this.reservationFileReader = new BufferedReader(new FileReader(reservationFilePath));
@@ -115,11 +123,11 @@ public class DatabaseManager {
 			
 		}
 		
-		return null;
+		return reservations;
 	}
 	
-	public void saveReservations(ArrayList<Reservation> reservations) {
-		
+	public void saveReservations(ArrayList<Reservation> r) {
+		reservations = r;
 	}
 	
 	public ArrayList<Payment> loadPayments(){
@@ -144,8 +152,8 @@ public class DatabaseManager {
 		return null;
 	}
 	
-	public void savePaymnents(ArrayList<Payment> payments) {
-		
+	public void savePaymnents(ArrayList<Payment> p) {
+		payments = p;
 	}
 
 	/**
@@ -153,7 +161,7 @@ public class DatabaseManager {
 	 * @return String numberOfLabManagerAccounts
 	 */
 	public String loadNumLabManagerAccountCreated() {
-		return null;
+		return NumLabManagerAccountCreated;
 		
 	}
 	
@@ -162,8 +170,23 @@ public class DatabaseManager {
 	 * @param num 
 	 */
 	public void saveNumLabManagerAccountCreated(String num) {
+		NumLabManagerAccountCreated = num;
 		
-		
+	}
+
+	public boolean deleteReservation(String reservationId) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean updateReservation(Reservation r) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean saveReservation(ArrayList<Reservation> allReservations) {
+		reservations = (allReservations);
+		return true;
 	}
 	
 }

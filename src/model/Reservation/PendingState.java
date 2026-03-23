@@ -1,6 +1,6 @@
 package model.Reservation;
 
-import java.util.Date;
+
 
 public class PendingState implements ReservationState{
 

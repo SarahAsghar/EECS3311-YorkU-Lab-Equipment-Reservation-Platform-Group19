@@ -22,7 +22,6 @@ import controller.UserController;
 
 import javax.swing.border.LineBorder;
 
-
 public class LoginView {
 	
 	private static JFrame frame = new JFrame("EquipmentReservationSystem");
@@ -33,12 +32,12 @@ public class LoginView {
 	private static LoginView instance;
 	
 	private LoginView() {
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Close on exit
-		frame.setVisible(true);
-		frame.setResizable(false); // stop resize
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setResizable(false);
 		frame.setMinimumSize(new Dimension(800, 630));
 		frame.getContentPane().setBackground(new Color(239, 239, 239));
 		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
 
 		LoginViewPanel = new JPanel();
 		LoginViewPanel.setBounds(0, 0, 800, 600);
@@ -136,7 +135,6 @@ public class LoginView {
 			}
 		});
 		InfoPanel.add(LoginBtn);
-		LoginBtn.setVisible(true);
 		
 		JPanel RegistrationPanel = new JPanel();
 		RegistrationPanel.setBounds(100, 456, 588, 88);
@@ -160,10 +158,6 @@ public class LoginView {
 		Registerbtn.setFont(new Font("Times New Roman", Font.BOLD, 25));
 		Registerbtn.setBounds(236, 25, 117, 38);
 		RegistrationPanel.add(Registerbtn);
-		
-		
-		
-		
 	}
 	
 	public static synchronized LoginView getInstance() {
@@ -174,14 +168,21 @@ public class LoginView {
 	}
 	
 	public void setLoginViewVisibility(boolean b) {
-		EmailTextfield.setText("");
-		PasswordTextfield.setText("");
-		LoginViewPanel.setVisible(b);
+		frame.getContentPane().removeAll();
+
+		if (b) {
+			EmailTextfield.setText("");
+			PasswordTextfield.setText("");
+			LoginViewPanel.setVisible(true);
+			frame.getContentPane().add(LoginViewPanel);
+			frame.revalidate();
+			frame.repaint();
+		} else {
+			LoginViewPanel.setVisible(false);
+		}
 	}
 	
 	public static JFrame getFrame() {
 		return frame;
 	}
-	
-	
 }
