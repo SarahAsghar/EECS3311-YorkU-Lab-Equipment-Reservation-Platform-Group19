@@ -1,25 +1,31 @@
 package model.Reservation;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-public class ActiveState implements ReservationState{
+public class ActiveState implements ReservationState {
 
-	public void extend(Reservation reservation, Date extension) {
-		reservation.extendReservation(extension);
-		
-	}
+    @Override
+    public void extend(Reservation reservation, LocalDateTime newEndTime) {
+        if (newEndTime == null) {
+            throw new IllegalArgumentException("New end time cannot be null.");
+        }
 
-	
-	public void cancel(Reservation reservation) {
-		reservation.cancelReservation();
-		
-	}
+        if (!newEndTime.isAfter(reservation.getEndTime())) {
+            throw new IllegalArgumentException("New end time must be after current end time.");
+        }
 
-	
-	public Date checkArrival(Reservation reservation) {
-		return reservation.checkArrival();
-		
-	}
+        reservation.setEndTime(newEndTime);
+    }
 
-	
+    @Override
+    public void cancel(Reservation reservation) {
+        throw new IllegalStateException("Active reservation cannot be cancelled.");
+    }
+
+    @Override
+    public void checkArrival(Reservation reservation) {
+        if (LocalDateTime.now().isAfter(reservation.getEndTime())) {
+            reservation.setState(new CompletedState());
+        }
+    }
 }
