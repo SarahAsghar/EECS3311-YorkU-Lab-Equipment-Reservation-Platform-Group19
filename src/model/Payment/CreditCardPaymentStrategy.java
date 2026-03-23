@@ -1,3 +1,4 @@
+package model.Payment;
 public class CreditCardPaymentStrategy implements PaymentStrategy {
 
     @Override
