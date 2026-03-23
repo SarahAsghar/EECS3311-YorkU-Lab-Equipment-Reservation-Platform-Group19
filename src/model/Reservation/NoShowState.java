@@ -1,23 +1,21 @@
 package model.Reservation;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-public class NoShowState implements ReservationState{
+public class NoShowState implements ReservationState {
 
-	public void extend(Reservation reservation, Date extension) {
-		reservation.extendReservation(extension);
-		
-	}
+    @Override
+    public void extend(Reservation reservation, LocalDateTime newEndTime) {
+        throw new IllegalStateException("No-show reservation cannot be extended.");
+    }
 
-	
-	public void cancel(Reservation reservation) {
-		reservation.cancelReservation();
-		
-	}
+    @Override
+    public void cancel(Reservation reservation) {
+        throw new IllegalStateException("No-show reservation cannot be cancelled.");
+    }
 
-	
-	public Date checkArrival(Reservation reservation) {
-		return reservation.checkArrival();
-		
-	}
+    @Override
+    public void checkArrival(Reservation reservation) {
+        // no action
+    }
 }
