@@ -16,7 +16,7 @@ public class UserFactory {
         return new User(email, password, type, idNum, name);
     }
 
-    public static User createLabManager(String email, String password,
+    public static LabManager createLabManager(String email, String password,
                                         String idNum, String name,
                                         ArrayList<User> users) {
 
@@ -26,7 +26,7 @@ public class UserFactory {
             }
         }
 
-        User manager = new User(email, password, UserType.LABMANAGER, idNum, name);
+        LabManager manager = new LabManager(email, password, idNum, name);
         manager.setStatus(true); 
         return manager;
     }
