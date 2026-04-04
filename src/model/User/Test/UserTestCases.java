@@ -41,7 +41,7 @@ class UserTestCases {
 	void UserFactoryTest_createUser() {
 		ArrayList<User> users = new ArrayList<User>();
 		User u1 = new User("email", "pass", UserType.STUDENT, "123", "John");
-		User u2 = new User("email2", "pass2", UserType.STUDENT, "1234", "Alice");
+		User u2 = new User("email2", "pass2", UserType.RESEARCHER, "1234", "Alice");
 		users.add(u2);
 		users.add(u1);
 		
