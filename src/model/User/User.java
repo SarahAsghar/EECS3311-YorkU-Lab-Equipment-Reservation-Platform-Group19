@@ -53,7 +53,6 @@ public class User {
 		this.userType = t;
 	}
 	public String getName() {
-		// TODO Auto-generated method stub
 		return name;
 	}
 
