@@ -2,7 +2,9 @@ package Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +15,10 @@ import model.Equipment.Equipment;
 import model.Equipment.EquipmentStatus;
 import model.User.User;
 import model.User.UserType;
+import controller.PaymentController;
+import controller.ReservationController;
+import model.Reservation.*;
+import model.Payment.*;
 
 class ControllerTest {
 
@@ -715,4 +721,162 @@ class ControllerTest {
 		String ae4 = c1.addEquipment("1", "Camera", "Pics", "Home", 10.00);
 		assertEquals("Equipment added successfully!", ae4);
 	}
+	
+	@Test
+	void PaymentControllerTest_checkPaymentControllerSingularity() {
+		PaymentController p = PaymentController.getInstance();
+		PaymentController q = PaymentController.getInstance();
+		
+		assertEquals(p, q);
+		
+	}
+	
+	@Test
+	void PaymentControllerTest_procesPaymentBoundaryTest() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processPayment(r, 20.00, null, null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processCardPaymentTest() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processCardPayment(r, 20.00, "123456789", null, null, null);
+		assertTrue(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processInstitutionalPaymentTest() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processInstitutionalPayment(r, 20.00, "24680101214", null, "New College", null);
+		assertTrue(success);
+		
+	}
+	
+	@Test
+	void PaymentControllerTest_processGrantPaymentTest() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processGrantPayment(r, 20.00, "12345", "Science Research Project");
+		assertTrue(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processCardPaymentBoundaryTest1() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processCardPayment(r, 20.00, null, null, null, null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processInstitutionalPaymentBoundaryTest1() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processInstitutionalPayment(r, 20.00, null, null, null, null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processGrantPaymentBoundaryTest1() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processGrantPayment(r, 20.00, null, null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processInstitutionalPaymentBoundaryTest2() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processInstitutionalPayment(r, 20.00, "24680101214", null, null, null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processInstitutionalPaymentBoundaryTest3() {
+		
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processInstitutionalPayment(r, 20.00, null, null, "New College", null);
+		assertFalse(success);
+	}
+	
+	
+	@Test
+	void PaymentControllerTest_processGrantPaymentBoundaryTest2() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processGrantPayment(r, 20.00, "12345", null);
+		assertFalse(success);
+	}
+	
+	@Test
+	void PaymentControllerTest_processGrantPaymentBoundaryTest3() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
+		PaymentController p = PaymentController.getInstance();
+		
+		boolean success = p.processGrantPayment(r, 20.00, null, "Science Research Project");
+		assertFalse(success);
+	}
+	
+	@Test
+	void ReservationControllerTest_checkForSingularity(){
+		ReservationController r = ReservationController.getInstance();
+		ReservationController s = ReservationController.getInstance();
+		
+		assertEquals(r, s);
+	}
+		
+	void ReservationControllerTest_createReservationTest(){
+		ReservationController r = ReservationController.getInstance();
+		
+		Reservation result = r.createReservation("1000", LocalDateTime.parse("2026-05-06T14:30:00"), LocalDateTime.parse("2026-05-06T16:00:00"));
+		
+		assertNotNull(result);
+	}
+	
+	void ReservationControllerTest_createReservationBoundaryTest1() {
+		ReservationController r = ReservationController.getInstance();
+		//start time before time.now
+		Reservation result = r.createReservation("1000", LocalDateTime.parse("2026-02-06T14:30:00"), LocalDateTime.parse("2026-02-06T16:00:00"));
+		assertNull(result);
+	}
+	
+	void ReservationControllerTest_createReservationBoundaryTest2() {
+		ReservationController r = ReservationController.getInstance();
+		
+		//end time before start time
+		Reservation result = r.createReservation("1000", LocalDateTime.parse("2026-05-06T14:30:00"), LocalDateTime.parse("2026-05-06T13:00:00"));
+		assertNull(result);
+	}
+	
+	void ReservationControllerTest_createReservationBoundaryTest3() {
+		ReservationController r = ReservationController.getInstance();
+		
+		//time set over 3 months in advance
+		Reservation result = r.createReservation("1000", LocalDateTime.parse("2026-09-06T14:30:00"), LocalDateTime.parse("2026-09-06T13:00:00"));
+		assertNull(result);
+	}
+	
+	
+	
 }
