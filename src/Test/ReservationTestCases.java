@@ -74,11 +74,19 @@ public class ReservationTestCases {
 	}
 	
 	@Test
-	void reservationCalcukateHoursTest() {
+	void reservationCalculateHoursTest1() {
 		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), LocalDateTime.parse("2026-06-06T16:00:00"), new ActiveState());
 		double ans = r.calculateHours();
 		
 		assertEquals(1.50, ans);
+	}
+	
+	@Test
+	void reservationCalculateHoursTest2() {
+		Reservation r = new Reservation("1000", "1001", LocalDateTime.parse("2026-06-06T14:30:00"), null, new ActiveState());
+		double ans = r.calculateHours();
+		
+		assertEquals(0, ans);
 	}
 	
 	
